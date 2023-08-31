@@ -20,7 +20,7 @@ setup(
     name=kp_tools.__name__,
     version=kp_tools.__version__,
     project_urls={
-        "Documentation": kp_tools.__docs__,
+    #    "Documentation": kp_tools.__docs__,
         "Code": kp_tools.__code__,
         "Issue tracker": kp_tools.__issue__,
     },
