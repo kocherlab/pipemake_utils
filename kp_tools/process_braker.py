@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import sys
 import argparse
@@ -172,37 +174,42 @@ def updateGFF (filename, id_cvt_dict, out_filename):
 	# Close the output file
 	out_file.close()
 
-# Assign the process args
-process_args = processParser()
+def main():
 
-# Create an ID list from the amino acid sequences
-aa_id_dict = createSeqList(process_args['fasta_aa'])
+	# Assign the process args
+	process_args = processParser()
 
-# Create an ID list from the CDS
-cds_id_dict = createSeqList(process_args['fasta_cds'])
+	# Create an ID list from the amino acid sequences
+	aa_id_dict = createSeqList(process_args['fasta_aa'])
 
-# Confirm the amino acid and CDS IDs are the same
-if aa_id_dict != cds_id_dict: 
-	raise Exception (f'Unable to match IDs between: {prot_filename} and {transcript_filename}')
+	# Create an ID list from the CDS
+	cds_id_dict = createSeqList(process_args['fasta_cds'])
 
-# Confirm the GFF matches the sequence files
-checkGFF(process_args['gff'], aa_id_dict)
+	# Confirm the amino acid and CDS IDs are the same
+	if aa_id_dict != cds_id_dict: 
+		raise Exception (f'Unable to match IDs between: {prot_filename} and {transcript_filename}')
 
-# Assign the annotations prefix
-annotations_prefix = f"{process_args['species']}_{process_args['assembly_version']}.{process_args['annotation_version']}"
+	# Confirm the GFF matches the sequence files
+	checkGFF(process_args['gff'], aa_id_dict)
 
-# Create the new ID conversion dict
-new_id_cvt_dict = createNewIDCvtDict(aa_id_dict, annotations_prefix)
+	# Assign the annotations prefix
+	annotations_prefix = f"{process_args['species']}_{process_args['assembly_version']}.{process_args['annotation_version']}"
 
-# Create the output directory, if it does not alraady exits
-if not os.path.exists(process_args['out_dir']): os.makedirs(process_args['out_dir'])
+	# Create the new ID conversion dict
+	new_id_cvt_dict = createNewIDCvtDict(aa_id_dict, annotations_prefix)
 
-# Create the output filename prefix
-out_prefix = os.path.join(process_args['out_dir'], f"{process_args['species']}_OGS_{process_args['assembly_version']}.{process_args['annotation_version']}")
+	# Create the output directory, if it does not alraady exits
+	if not os.path.exists(process_args['out_dir']): os.makedirs(process_args['out_dir'])
 
-# Update the sequence files
-updateSeqFile(process_args['fasta_aa'], new_id_cvt_dict, f'{out_prefix}_pep.fa')
-updateSeqFile(process_args['fasta_cds'], new_id_cvt_dict, f'{out_prefix}_trans.fa')
+	# Create the output filename prefix
+	out_prefix = os.path.join(process_args['out_dir'], f"{process_args['species']}_OGS_{process_args['assembly_version']}.{process_args['annotation_version']}")
 
-# Update the GFF
-updateGFF(process_args['gff'], new_id_cvt_dict, f'{out_prefix}.gff3')
+	# Update the sequence files
+	updateSeqFile(process_args['fasta_aa'], new_id_cvt_dict, f'{out_prefix}_pep.fa')
+	updateSeqFile(process_args['fasta_cds'], new_id_cvt_dict, f'{out_prefix}_trans.fa')
+
+	# Update the GFF
+	updateGFF(process_args['gff'], new_id_cvt_dict, f'{out_prefix}.gff3')
+
+if __name__ == '__main__':
+	main()
