@@ -2,7 +2,7 @@ import sys
 
 # Basic Information
 __name__ = "kp_tools"
-__version__ = "0.1"
+__version__ = "0.1.1"
 __summary__ = "Kocher Pipeline Tools"
 __url__ = "https://github.com/kocherlab/kocher_pipeline_tools"
 __code__ = "https://github.com/kocherlab/kocher_pipeline_tools"
