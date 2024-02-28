@@ -1,4 +1,4 @@
-Kocher lab pipeline tools
-=========================
+Pipemake Utilities
+==================
 
-Scripts to include in pipeline images
+Basic utilities for Pipemake pipelines

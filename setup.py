@@ -3,7 +3,7 @@ import os
 
 from setuptools import setup
 
-import kp_tools
+import pipemake_utils
 
 with io.open("README.rst", "rt", encoding="utf8") as f:
     readme = f.read()
@@ -17,25 +17,25 @@ if os.path.isfile(requirement_path):
         requirements = f.read().splitlines()
 
 setup(
-    name=kp_tools.__name__,
-    version=kp_tools.__version__,
+    name=pipemake_utils.__name__,
+    version=pipemake_utils.__version__,
     project_urls={
-    #    "Documentation": kp_tools.__docs__,
-        "Code": kp_tools.__code__,
-        "Issue tracker": kp_tools.__issue__,
+    #    "Documentation": pipemake_utils.__docs__,
+        "Code": pipemake_utils.__code__,
+        "Issue tracker": pipemake_utils.__issue__,
     },
-    license=kp_tools.__license__,
-    url=kp_tools.__url__,
-    description=kp_tools.__summary__,
+    license=pipemake_utils.__license__,
+    url=pipemake_utils.__url__,
+    description=pipemake_utils.__summary__,
     long_description_content_type="text/x-rst",
     long_description=readme,
-    packages=["kp_tools"],
+    packages=["pipemake_utils"],
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "process-braker=kp_tools.process_braker:main",
-            "ped-map-categories = kp_tools.ped_map_categories:main",
-            "model-category-inds = kp_tools.model_category_inds:main"
+            "process-braker=pipemake_utils.process_braker:main",
+            "ped-map-categories = pipemake_utils.ped_map_categories:main",
+            "model-category-inds = pipemake_utils.model_category_inds:main"
         ],
     },
     python_requires=">=3.7",

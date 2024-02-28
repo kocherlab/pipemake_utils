@@ -2,9 +2,9 @@ import argparse
 
 import pandas as pd
 
-from kp_tools.misc import *
-from kp_tools.logger import *
-from kp_tools.model import readModelFile
+from pipemake_utils.misc import *
+from pipemake_utils.logger import *
+from pipemake_utils.model import readModelFile
 
 def argParser ():
 
