@@ -34,6 +34,8 @@ setup(
     entry_points={
         "console_scripts": [
             "process-braker=kp_tools.process_braker:main",
+            "ped-map-categories = kp_tools.ped_map_categories:main",
+            "model-category-inds = kp_tools.model_category_inds:main"
         ],
     },
     python_requires=">=3.7",
