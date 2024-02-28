@@ -1,4 +1,4 @@
 Pipemake Utilities
 ==================
 
-Basic utilities for Pipemake pipelines
+Basic utilities for Pipemake images
