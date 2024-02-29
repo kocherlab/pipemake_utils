@@ -23,7 +23,7 @@ def main():
     map_args = argParser()
 
     # Start logger and log the arguments
-    startLogger(f"{map_args['out_prefix']}.log")
+    startLogger(f"{map_args['out_prefix']}.ind.log")
     logArgDict(map_args)
 
     # Assign the category
@@ -31,11 +31,11 @@ def main():
     model_category = models[map_args['model_category']]
 
     # Print the individuals to a file
-    with open(f"{map_args['out_prefix']}.ind", 'w') as ind_file:
+    with open(f"{map_args['out_prefix']}.ind.txt", 'w') as ind_file:
         for inds in model_category.ind_dict.values():
             for ind in inds:
                 ind_file.write(f"{ind}\n")
-                logging.info(f"Added {ind} to {map_args['out_prefix']}.ind")
+                logging.info(f"Added {ind} to {map_args['out_prefix']}.ind.txt")
 
 if __name__ == '__main__':
 	main()

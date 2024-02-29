@@ -34,8 +34,9 @@ setup(
     entry_points={
         "console_scripts": [
             "process-braker=pipemake_utils.process_braker:main",
-            "ped-map-categories = pipemake_utils.ped_map_categories:main",
-            "model-category-inds = pipemake_utils.model_category_inds:main"
+            "ped-phenotype-file=pipemake_utils.ped_phenotype_file:main",
+            "model-category-inds = pipemake_utils.model_category_inds:main",
+            "filter-gemma = pipemake_utils.filter_gemma:main"
         ],
     },
     python_requires=">=3.7",

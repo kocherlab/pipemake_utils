@@ -43,7 +43,7 @@ def main():
     map_args = argParser()
 
     # Start logger and log the arguments
-    startLogger(f"{map_args['out_prefix']}.log")
+    startLogger(f"{map_args['out_prefix']}.pheno.log")
     logArgDict(map_args)
 
     # Assign the category
@@ -52,9 +52,6 @@ def main():
 
     # Store the categorys
     categories = list(model_category.ind_dict)
-
-    # Check that there are only two categories
-    if len(categories) != map_args['categories_limit']: raise Exception(f"Categories ({', '.join(categories)}) greater than the limit: {map_args.categories_limit}")
 
     # Create a dictionary to map the individual to the category
     ind_to_categories = {}
@@ -72,11 +69,11 @@ def main():
     plink_table = plink_table.apply(mapCategory, category_map = ind_to_categories, axis = 1)
 
     # Confirm that the categories were mapped
-    if set(plink_table[5].unique()) != set(categories):
-        logging.warn(f"Not all categories were found. Only mapped: {', '.join(map(str, plink_table[5].unique()))}")
+    if len(plink_table[5].unique()) != map_args['categories_limit']:
+        raise Exception(f"Categories ({', '.join(categories)}) greater than the limit: {map_args['categories_limit']}")
 
     # Save the updated plink table
-    plink_table.to_csv(f"{map_args['out_prefix']}.fam", sep = ' ', header = False, index = False)
+    plink_table[5].to_csv(f"{map_args['out_prefix']}.pheno.txt", sep = ' ', header = False, index = False)
 
 if __name__ == '__main__':
 	main()
