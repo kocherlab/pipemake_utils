@@ -1,0 +1,33 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%runscript
+    exec "$@"
+
+%environment
+    export PATH="/opt/plink/:$PATH"
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -y
+    apt-get install wget zip -y
+    mkdir -p /opt/plink
+    wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20231211.zip
+    wget https://s3.amazonaws.com/plink2-assets/plink2_linux_x86_64_20240205.zip
+    unzip plink_linux_x86_64_20231211.zip
+    unzip plink2_linux_x86_64_20240205.zip
+    mv plink /opt/plink/plink
+    mv plink2 /opt/plink/plink2
+    mv prettify /opt/plink/prettify
+    chmod +x /opt/plink/plink
+    chmod +x /opt/plink/plink2
+    chmod +x /opt/plink/prettify
+
+%test
+    plink -h
+    plink2 -h
+
+%labels
+    Maintained by: aewebb80
+    Plink 1.9: v20231211
+    Plink   2: v20240205

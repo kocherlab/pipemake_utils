@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%runscript
+    exec "$@"
+
+%environment
+    export PATH="/opt/gemma/:$PATH"
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -y
+    apt-get install wget gzip -y
+    mkdir -p /opt/gemma
+    wget https://github.com/genetics-statistics/GEMMA/releases/download/v0.98.5/gemma-0.98.5-linux-static-AMD64.gz
+    gunzip gemma-0.98.5-linux-static-AMD64.gz
+    mv gemma-0.98.5-linux-static-AMD64 /opt/gemma/gemma
+    chmod +x /opt/gemma/gemma
+
+%test
+    gemma -h
+
+%labels
+    Maintained by: aewebb80
+    gemma v0.98.5
+    
