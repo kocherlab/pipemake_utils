@@ -34,7 +34,7 @@ def main():
     with open(f"{map_args['out_prefix']}.ind.txt", 'w') as ind_file:
         for inds in model_category.ind_dict.values():
             for ind in inds:
-                ind_file.write(f"{ind}\n")
+                ind_file.write(f"{ind}\t{ind}\n")
                 logging.info(f"Added {ind} to {map_args['out_prefix']}.ind.txt")
 
 if __name__ == '__main__':
