@@ -13,9 +13,9 @@ From: ubuntu:latest
     apt-get install wget zip -y
     mkdir -p /opt/plink
     wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20231211.zip
-    wget https://s3.amazonaws.com/plink2-assets/plink2_linux_x86_64_20240205.zip
+    wget https://s3.amazonaws.com/plink2-assets/plink2_linux_x86_64_20240302.zip
     unzip plink_linux_x86_64_20231211.zip
-    unzip plink2_linux_x86_64_20240205.zip
+    unzip plink2_linux_x86_64_20240302.zip
     mv plink /opt/plink/plink
     mv plink2 /opt/plink/plink2
     mv prettify /opt/plink/prettify
