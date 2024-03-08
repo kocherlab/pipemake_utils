@@ -281,8 +281,9 @@ class Model:
 
     def create_pop_files (self, file_ext = '', file_path = '', overwrite = False):
         for pop in self.pop_list:
+            
             # Assign the filename for the population file
-            pop_filename = pop + file_ext
+            pop_filename = f'{pop}.{file_ext}'
 
             # If a path is assigned, create the file at the specified location
             if file_path:

@@ -36,7 +36,8 @@ setup(
             "process-braker=pipemake_utils.process_braker:main",
             "ped-phenotype-file=pipemake_utils.ped_phenotype_file:main",
             "model-category-inds = pipemake_utils.model_category_inds:main",
-            "filter-gemma = pipemake_utils.filter_gemma:main"
+            "filter-gemma = pipemake_utils.filter_gemma:main",
+            "model-pop-files = pipemake_utils.model_pop_files:main"
         ],
     },
     python_requires=">=3.7",
