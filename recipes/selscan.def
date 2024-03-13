@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%runscript
+    exec "$@"
+
+%environment
+    export PATH="/opt/selscan/:$PATH"
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -y
+    apt-get install wget tar -y
+    mkdir -p /opt/selscan
+    wget https://github.com/szpiech/selscan/archive/refs/tags/v2.0.0.tar.gz
+    tar -xzf v2.0.0.tar.gz
+    mv selscan-2.0.0/bin/linux/selscan /opt/selscan/selscan
+    mv selscan-2.0.0/bin/linux/norm /opt/selscan/norm
+    chmod +x /opt/selscan/selscan
+    chmod +x /opt/selscan/norm
+
+%labels
+    Maintained by: aewebb80
+    selscan v2.0.0
+    norm v1.3.0
+    

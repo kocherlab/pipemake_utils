@@ -12,7 +12,6 @@ def argParser ():
 	parser.add_argument('--model-file', help = 'Model filename', type = str, action = confirmFile(), required = True)
 	parser.add_argument('--model-name', help = 'Model name', type = str, required = True)
 	parser.add_argument('--out-dir', help = 'Output directory', type = str, required = True)
-	parser.add_argument('--out-ext', help = 'Output extension', type = str, default = 'pop')
 
 	# Parse the arguments
 	return vars(parser.parse_args())
@@ -26,7 +25,7 @@ def main():
 	models = readModelFile(model_args['model_file'])
 
 	# Create the population files
-	models[model_args['model_name']].create_pop_files(file_ext = model_args['out_ext'], file_path = model_args['out_dir'])
+	models[model_args['model_name']].create_pop_files(file_ext = 'pop', file_path = model_args['out_dir'])
 
 if __name__ == '__main__':
 	main()
