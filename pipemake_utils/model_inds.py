@@ -10,7 +10,7 @@ def argParser ():
 
     # Create argument parser
     parser = argparse.ArgumentParser(description = 'Create a file of the individuals from a model')
-    parser.add_argument('--model', help = 'The model file', type = str, action = confirmFile(), required = True)
+    parser.add_argument('--model-file', help = 'The model file', type = str, action = confirmFile(), required = True)
     parser.add_argument('--model-name', help = 'The name to assign from the model file', type = str, required = True)
     output = parser.add_mutually_exclusive_group(required = True)
     output.add_argument('--out-prefix', help = 'The output prefix', type = str)
