@@ -37,7 +37,8 @@ setup(
             "ped-phenotype-file=pipemake_utils.ped_phenotype_file:main",
             "model-category-inds = pipemake_utils.model_category_inds:main",
             "filter-gemma = pipemake_utils.filter_gemma:main",
-            "model-pop-files = pipemake_utils.model_pop_files:main"
+            "model-pop-files = pipemake_utils.model_pop_files:main",
+            "plot-pca = pipemake_utils.plot_pca:main",
         ],
     },
     python_requires=">=3.7",
