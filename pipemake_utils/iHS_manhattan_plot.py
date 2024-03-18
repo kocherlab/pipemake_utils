@@ -1,6 +1,10 @@
 import argparse
+
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from pipemake_utils.misc import *
+from pipemake_utils.logger import *
 
 def argParser ():
 
@@ -32,16 +36,19 @@ def main():
 	plot_dataframe = plot_dataframe.rename(columns={6: plot_args['iHS_col']})
 	plot_dataframe = plot_dataframe[[plot_args['chrom_col'], plot_args['pos_col'], plot_args['iHS_col']]]
 
+	# Assign the integer chromosome column name
+	int_col_name = f"{plot_args['chrom_col']}_int"
+
 	# Sort by CHROM and POS or CHROM and BIN_START
-	plot_dataframe[f'{plot_args['chrom_col']}_int'] = plot_dataframe[plot_args['chrom_col']].str.split('_').str[-1].astype(int)
-	plot_dataframe = plot_dataframe.sort_values(by = [f'{plot_args['chrom_col']}_int', plot_args['pos_col']])
+	plot_dataframe[int_col_name] = plot_dataframe[plot_args['chrom_col']].str.split('_').str[-1].astype(int)
+	plot_dataframe = plot_dataframe.sort_values(by = [int_col_name, plot_args['pos_col']])
 
 	# Get data length
 	pbs_data_len = len(plot_dataframe.index)
 	plot_dataframe['ORDER'] = range(pbs_data_len)
 
 	# Group the dataframe
-	grouped_plot_dataframe = plot_dataframe.groupby([f'{plot_args['chrom_col']}_int'])
+	grouped_plot_dataframe = plot_dataframe.groupby([int_col_name])
 
 	# Create the plot
 	plt.rcParams["figure.figsize"] = (24, 6)
