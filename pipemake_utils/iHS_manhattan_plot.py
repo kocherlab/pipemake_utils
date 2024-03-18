@@ -15,6 +15,7 @@ def argParser ():
 	parser.add_argument('--iHS-col', help = 'iHS column name', type = str, default = 'Normalized iHS')
 	parser.add_argument('--chrom-col', help = 'CRHOM column name', type = str, default = 'CHROM')
 	parser.add_argument('--pos-col', help = 'POS column name', type = str, default = 'POS')
+	parser.add_argument('--plot-format', help = 'Plot format', type = str, choices = ['png', 'pdf'], default = 'png') 
 
 	return vars(parser.parse_args())
 
@@ -76,7 +77,7 @@ def main():
 
 	plt.xticks(rotation=90, fontsize=10)
 	plt.tight_layout()
-	plt.savefig(f"{plot_args['out_prefix']}.man_plot.png")
+	plt.savefig(f"{plot_args['out_prefix']}.manhattan.{plot_args['plot_format']}")
 
 if __name__ == '__main__':
 	main()
