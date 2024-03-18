@@ -35,7 +35,7 @@ setup(
         "console_scripts": [
             "process-braker=pipemake_utils.process_braker:main",
             "ped-phenotype-file=pipemake_utils.ped_phenotype_file:main",
-            "model-category-inds = pipemake_utils.model_category_inds:main",
+            "model-inds = pipemake_utils.model_inds:main",
             "filter-gemma = pipemake_utils.filter_gemma:main",
             "model-pop-files = pipemake_utils.model_pop_files:main",
             "plot-pca = pipemake_utils.plot_pca:main",

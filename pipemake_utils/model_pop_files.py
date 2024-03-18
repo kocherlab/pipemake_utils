@@ -22,8 +22,8 @@ def main():
 	model_args = argParser()
 
 	# Start logger and log the arguments
-    startLogger(f"{model_args['out_prefix']}.pop.log")
-    logArgDict(model_args)
+	startLogger(f"{model_args['out_prefix']}.pop.log")
+	logArgDict(model_args)
 
 	# Read the model file
 	models = readModelFile(model_args['model_file'])
