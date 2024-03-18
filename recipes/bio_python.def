@@ -1,0 +1,27 @@
+Bootstrap: docker
+
+From: continuumio/miniconda3
+
+%files
+    bio_python.yml
+
+%environment
+    export LC_ALL=C
+    export LC_NUMERIC=en_GB.UTF-8
+    export PATH="/opt/conda/bin:$PATH"
+    export PATH="/opt/conda/envs/bio_python/bin:$PATH"
+
+%runscript
+    exec "$@"
+
+%post
+    #install conda bio_python.yml file
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+    echo "conda activate bio_python" >> $SINGULARITY_ENVIRONMENT
+    /opt/conda/bin/conda env create -f bio_python.yml
+
+    # Activate conda env, clone and install mypkg
+    . /opt/conda/bin/activate bio_python	
+
+
+

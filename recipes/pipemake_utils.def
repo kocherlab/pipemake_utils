@@ -1,0 +1,25 @@
+Bootstrap: docker
+
+From: continuumio/miniconda3
+
+%files
+    pipemake_utils.yml
+
+%environment
+    export LC_ALL=C
+    export LC_NUMERIC=en_GB.UTF-8
+    export PATH="/opt/conda/bin:$PATH"
+    export PATH="/opt/conda/envs/pipemake_utils/bin:$PATH"
+
+%runscript
+    exec "$@"
+
+%post
+    #install conda pipemake_utils.yml file
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+    echo "conda activate pipemake_utils" >> $SINGULARITY_ENVIRONMENT
+    /opt/conda/bin/conda env create -f pipemake_utils.yml
+
+    # Activate conda env, clone and install mypkg
+    . /opt/conda/bin/activate pipemake_utils
+

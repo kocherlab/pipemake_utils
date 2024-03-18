@@ -1,0 +1,24 @@
+Bootstrap: docker
+
+From: continuumio/miniconda3
+
+%files
+    kocher_SEQ.yml
+
+%environment
+    export LC_ALL=C
+    export LC_NUMERIC=en_GB.UTF-8
+    export PATH="/opt/conda/bin:$PATH"
+    export PATH="/opt/conda/envs/kocher_SEQ/bin:$PATH"
+
+%runscript
+    exec "$@"
+
+%post
+    #install conda kocher_SEQ.yml file
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+    echo "conda activate kocher_SEQ" >> $SINGULARITY_ENVIRONMENT
+    /opt/conda/bin/conda env create -f kocher_SEQ.yml
+
+    # Activate conda env, clone and install mypkg
+    . /opt/conda/bin/activate kocher_SEQ
