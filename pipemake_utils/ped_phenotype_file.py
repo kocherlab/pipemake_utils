@@ -34,7 +34,7 @@ def mapPhenotype (row, phenotype_map):
 		# Assign the phenotype as missing
 		row[5] = np.nan
 		
-		logging.warn((f"Individual ({row_ind}) not found in the phenotype map")
+		logging.warn(f"Individual ({row_ind}) not found in the phenotype map")
 
 	else:
 
