@@ -29,7 +29,7 @@ def main():
     logArgDict(map_args)
 
     # Assign the model
-    models = readModelFile(map_args['model-file'])
+    models = readModelFile(map_args['model_file'])
     model = models[map_args['model_name']]
 
     # Assign the output filename
