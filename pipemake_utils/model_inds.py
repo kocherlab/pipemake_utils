@@ -42,7 +42,7 @@ def main():
         # Loop through the model and write the individuals to a file
         for inds in model.ind_dict.items():
             for ind in inds:
-                nd_file.write(f"{ind}\t{ind}\n")
+                ind_file.write(f"{ind}\t{ind}\n")
                 logging.info(f"Added {ind} to {map_args['out_prefix']}.ind.txt")
 
 if __name__ == '__main__':
