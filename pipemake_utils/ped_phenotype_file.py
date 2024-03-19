@@ -89,13 +89,21 @@ def main():
 		   
 	# Read the plink table
 	plink_table = pd.read_csv(map_args['fam'], sep = ' ', header = None)
+	
+	# Check if the plink table only has one column, and if so, read it in again with tab delimiters
+	if len(plink_table.columns) == 1:
+		plink_table = pd.read_csv(map_args['fam'], sep = '\t', header = None)
 
 	# Map the phenotypes
 	plink_table = plink_table.apply(mapPhenotype, phenotype_map = ind_to_phenotypes, axis = 1)
 
+	# Check if the phenotypes were mapped
+	if len(plink_table[5].unique()) == 1 and np.isnan(plink_table[5].unique()[0]):
+		raise Exception(f"No phenotypes were mapped")
+
 	# Confirm that the phenotypes were mapped
-	if len(plink_table[5].unique()) != map_args['phenotypes_limit']:
-		raise Exception(f"Phenotypes ({', '.join(phenotypes)}) greater than the limit: {map_args['phenotypes_limit']}")
+	if len(plink_table[5].unique()) != map_args['phenotype_limit']:
+		raise Exception(f"Phenotypes ({', '.join(phenotypes)}) greater than the limit: {map_args['phenotype_limit']}")
 
 	# Check if the user specified a header
 	if map_args['pheno_header']:
