@@ -39,7 +39,8 @@ def mapPhenotype (row, phenotype_map):
 	else:
 
 		# Map the model
-		row[5] = phenotype_map[row_ind]
+		row_phenotype = phenotype_map[row_ind]
+		row[5] = row_phenotype
 
 		logging.info(f"Mapped individual: {row_ind} to {row_phenotype}")
 
