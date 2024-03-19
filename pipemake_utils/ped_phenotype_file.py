@@ -15,6 +15,7 @@ def argParser ():
 	parser.add_argument('--model-file', help = 'The model file', type = str, action = confirmFile(), required = True)
 	parser.add_argument('--model-name', help = 'The model to assign from the model file', type = str, required = True)
 	parser.add_argument('--out-prefix', help = 'The output prefix', type = str, default = 'out')
+	parser.add_argument('--out-format', help = 'The output format', type = str, choices = ['plink2', 'basic'], default = 'basic')
 	parser.add_argument('--pheno-header', help = 'The header for the phenotype column', type = str)
 	parser.add_argument('--numeric', help = 'Report phenotypes numerically (1, 2, etc.)', action='store_true')
 	parser.add_argument('--binary', help = 'Report phenotypes in binary (0, 1)', action='store_true')
@@ -106,15 +107,28 @@ def main():
 	if len(plink_table[5].unique()) != map_args['phenotype_limit']:
 		raise Exception(f"Phenotypes ({', '.join(phenotypes)}) greater than the limit: {map_args['phenotype_limit']}")
 
-	# Check if the user specified a header
-	if map_args['pheno_header']:
+	# Check if the user specified basic format
+	if map_args['out_format'] == 'basic':
+
+		# Report an error if the user specified a phenotype header
+		if map_args['pheno_header']:
+			raise Exception("Cannot specify a phenotype header with basic format")
+		
+		# Write the file
+		plink_table[5].to_csv(f"{map_args['out_prefix']}.pheno.txt", sep = ' ', header = False, index = False)
+
+	# Check if the user specified plink2 format
+	elif map_args['out_format'] == 'plink2':
+
+		# Check if the user specified a phenotype header and rename the column
+		if map_args['pheno_header']: plink_table = plink_table.rename(columns = {5: map_args['pheno_header']})
 
 		# Rename the column and write the file
-		plink_table = plink_table.rename(columns = {5: map_args['pheno_header']})
-		plink_table[map_args['pheno_header']].to_csv(f"{map_args['out_prefix']}.pheno.txt", sep = ' ', header = True, index = False)
+		plink_table = plink_table.rename(columns = {1: '#IID'})
+		plink_table[['#IID', map_args['pheno_header']]].to_csv(f"{map_args['out_prefix']}.pheno.txt", sep = '\t', header = True, index = False)
 
-	# Otherwise, write the file without a header
-	else: plink_table[5].to_csv(f"{map_args['out_prefix']}.pheno.txt", sep = ' ', header = False, index = False)
+	else:
+		raise Exception(f"Unknown format: {map_args['out_format']}")
 
 if __name__ == '__main__':
 	main()
