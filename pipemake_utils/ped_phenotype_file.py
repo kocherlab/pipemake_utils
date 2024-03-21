@@ -125,7 +125,7 @@ def main():
 
 		# Rename the column and write the file
 		plink_table = plink_table.rename(columns = {1: '#IID'})
-		plink_table[['#IID', map_args['pheno_header']]].to_csv(f"{map_args['out_prefix']}.pheno.txt", sep = '\t', header = True, index = False, na_rep='NA')
+		plink_table[['#IID', map_args['pheno_header']]].to_csv(f"{map_args['out_prefix']}.pheno.txt", sep = '\t', header = True, index = False, na_rep='NF')
 
 	else:
 		raise Exception(f"Unknown format: {map_args['out_format']}")
