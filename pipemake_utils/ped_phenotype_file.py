@@ -104,8 +104,8 @@ def main():
 		raise Exception(f"No phenotypes were mapped")
 
 	# Confirm that the phenotypes were mapped
-	if len(plink_table[5].unique()) != map_args['phenotype_limit']:
-		raise Exception(f"Phenotypes ({', '.join(phenotypes)}) greater than the limit: {map_args['phenotype_limit']}")
+	#if len(plink_table[5].unique()) != map_args['phenotype_limit']:
+	#	raise Exception(f"Phenotypes ({', '.join(phenotypes)}) greater than the limit: {map_args['phenotype_limit']}")
 
 	# Check if the user specified basic format
 	if map_args['out_format'] == 'basic':
