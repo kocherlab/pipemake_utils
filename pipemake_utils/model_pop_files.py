@@ -21,15 +21,15 @@ def main():
 	# Parse the arguments
 	model_args = argParser()
 
+	# Check if the output directory exists
+	if not os.path.exists(model_args['out_dir']): os.makedirs(model_args['out_dir'])
+
 	# Start logger and log the arguments
-	startLogger(f"{model_args['out_prefix']}.pop.log")
+	startLogger(os.path.join(model_args['out_dir'], f"{model_args['model_name']}.pop.log"))
 	logArgDict(model_args)
 
 	# Read the model file
 	models = readModelFile(model_args['model_file'])
-
-	# Check if the output directory exists
-	if not os.path.exists(model_args['out_dir']): os.makedirs(model_args['out_dir'])
 
 	# Create the population files
 	models[model_args['model_name']].create_pop_files(file_ext = 'pop', file_path = model_args['out_dir'])
