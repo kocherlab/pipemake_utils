@@ -15,7 +15,8 @@ def argParser ():
 	parser.add_argument('--iHS-col', help = 'iHS column name', type = str, default = 'Normalized iHS')
 	parser.add_argument('--chrom-col', help = 'CRHOM column name', type = str, default = 'CHROM')
 	parser.add_argument('--pos-col', help = 'POS column name', type = str, default = 'POS')
-	parser.add_argument('--plot-format', help = 'Plot format', type = str, choices = ['png', 'pdf'], default = 'png') 
+	parser.add_argument('--plot-abs', help = 'Plot the absolute value instead', action='store_true')
+	parser.add_argument('--plot-format', help = 'Plot format', type = str, choices = ['png', 'pdf'], default = 'png')
 
 	return vars(parser.parse_args())
 
@@ -36,6 +37,9 @@ def main():
 	plot_dataframe[plot_args['pos_col']] = plot_dataframe[plot_args['pos_col']].astype(int)
 	plot_dataframe = plot_dataframe.rename(columns={6: plot_args['iHS_col']})
 	plot_dataframe = plot_dataframe[[plot_args['chrom_col'], plot_args['pos_col'], plot_args['iHS_col']]]
+
+	# Plot the absolute value, if specified
+	if plot_args['plot_abs']: plot_dataframe[plot_args['iHS_col']] = plot_dataframe[plot_args['iHS_col']].abs()
 
 	# Assign the integer chromosome column name
 	int_col_name = f"{plot_args['chrom_col']}_int"
