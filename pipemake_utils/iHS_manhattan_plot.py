@@ -16,7 +16,7 @@ def argParser ():
 	parser.add_argument('--chrom-col', help = 'CRHOM column name', type = str, default = 'CHROM')
 	parser.add_argument('--pos-col', help = 'POS column name', type = str, default = 'POS')
 	parser.add_argument('--plot-abs', help = 'Plot the absolute value instead', action='store_true')
-	parser.add_argument('--plot-format', help = 'Plot format', type = str, choices = ['png', 'pdf'], default = 'png')
+	parser.add_argument('--plot-dpi', help = 'Plot DPI', type = int, default = 100)
 
 	return vars(parser.parse_args())
 
@@ -81,7 +81,7 @@ def main():
 
 	plt.xticks(rotation=90, fontsize=10)
 	plt.tight_layout()
-	plt.savefig(f"{plot_args['out_prefix']}.manhattan.{plot_args['plot_format']}")
+	plt.savefig(f"{plot_args['out_prefix']}.manhattan.png", dpi = plot_args['plot_dpi'])	
 
 if __name__ == '__main__':
 	main()
