@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import sys
 import argparse
 import gffutils
 
@@ -9,19 +8,12 @@ from Bio import SeqIO
 from itertools import chain
 from collections import defaultdict
 
+from pipemake_utils.misc import *
+
 def processParser ():
 
-	def confirmFile ():
-		'''Custom action to confirm file exists'''
-		class customAction(argparse.Action):
-			def __call__(self, parser, args, value, option_string=None):
-				if not os.path.isfile(value):
-					raise IOError(f'Unable to find file: {value}')
-				setattr(args, self.dest, value)
-		return customAction
-
 	# Create the parser
-	process_parser = argparse.ArgumentParser(description="process-braker: Confirm and process BRAKER3 output")
+	process_parser = argparse.ArgumentParser(description = "Confirm and process BRAKER3 output")
 
 	process_parser.add_argument("--fasta-aa", help = "BRAKER3 amino acid fasta filename", type = str, action = confirmFile(), required = True)
 	process_parser.add_argument("--fasta-cds", help = "BRAKER3 CDS fasta filename", type = str, action = confirmFile(), required = True)

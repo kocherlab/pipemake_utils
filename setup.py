@@ -39,7 +39,8 @@ setup(
             "filter-gemma = pipemake_utils.filter_gemma:main",
             "model-pop-files = pipemake_utils.model_pop_files:main",
             "plot-pca = pipemake_utils.plot_pca:main",
-            "iHS-manhattan-plot = pipemake_utils.iHS_manhattan_plot:main"
+            "manhattan-plot = pipemake_utils.manhattan_plot:main",
+            "z-normalize = pipemake_utils.z_normalize:main",
         ],
     },
     python_requires=">=3.7",

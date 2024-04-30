@@ -3,4 +3,4 @@ gffutils
 seaborn
 pandas
 numpy
-
+scipy
