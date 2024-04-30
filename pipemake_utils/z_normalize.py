@@ -1,9 +1,9 @@
+#!/usr/bin/env python
+
 import argparse
 
 import pandas as pd
 import scipy.stats as sstats
-
-#from scipy import stats
 
 from pipemake_utils.logger import *
 from pipemake_utils.misc import *

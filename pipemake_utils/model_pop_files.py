@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 
 from pipemake_utils.misc import *

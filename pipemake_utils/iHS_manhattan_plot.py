@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 
 import pandas as pd
@@ -10,13 +12,11 @@ def argParser ():
 
 	parser = argparse.ArgumentParser(description = 'Filter normalized iHS output')
 
-	parser.add_argument('--input-file', help = 'Input filename', type = str, action = confirmFile(), required = True)
-	parser.add_argument('--input-format', help = 'Input file format', type = str, default = 'tsv', choices = ['tsv', 'csv'])
-	parser.add_argument('--statistic-col', help = 'Statistic column name', type = str, required = True)
-	parser.add_argument('--chrom-col', help = 'CRHOM column name', type = str, required = True)
-	parser.add_argument('--pos-col', help = 'POS column name', type = str, required = True)
-
+	parser.add_argument('--iHS-file', help = 'iHS output file', type = str, action = confirmFile(), required = True)
 	parser.add_argument('--out-prefix', help = 'Output prefix', type = str, default = 'out')
+	parser.add_argument('--iHS-col', help = 'iHS column name', type = str, default = 'Normalized iHS')
+	parser.add_argument('--chrom-col', help = 'CRHOM column name', type = str, default = 'CHROM')
+	parser.add_argument('--pos-col', help = 'POS column name', type = str, default = 'POS')
 	parser.add_argument('--plot-abs', help = 'Plot the absolute value instead', action='store_true')
 	parser.add_argument('--plot-dpi', help = 'Plot DPI', type = int, default = 100)
 
@@ -31,13 +31,8 @@ def main():
 	startLogger(f"{plot_args['out_prefix']}.plot.log")
 	logArgDict(plot_args)
 
-	# Assign the input file separator
-	if plot_args['input_format'] == 'tsv': input_separator = '\t'
-	elif plot_args['input_format'] == 'csv': input_separator = ','
-	else: raise Exception (f"Unknown input format: {plot_args['input_format']}")
-
 	# Read in the PBS data
-	plot_dataframe = pd.read_csv(plot_args['input_file'], sep = input_separator, header = None)
+	plot_dataframe = pd.read_csv(plot_args['iHS_file'], sep = '\t', header = None)
 
 	# Assign iHS columns
 	plot_dataframe[[plot_args['chrom_col'], plot_args['pos_col']]] = plot_dataframe[0].str.rsplit('_', n = 1, expand = True)
