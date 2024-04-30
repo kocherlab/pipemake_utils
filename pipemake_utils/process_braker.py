@@ -179,7 +179,7 @@ def main():
 
 	# Confirm the amino acid and CDS IDs are the same
 	if aa_id_dict != cds_id_dict: 
-		raise Exception (f'Unable to match IDs between: {prot_filename} and {transcript_filename}')
+		raise Exception (f"Unable to match IDs between: {process_args['fasta_aa']} and {process_args['fasta_cds']}")
 
 	# Confirm the GFF matches the sequence files
 	checkGFF(process_args['gff'], aa_id_dict)
