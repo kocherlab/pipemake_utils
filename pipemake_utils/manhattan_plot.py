@@ -29,7 +29,6 @@ def argParser ():
 	pos_parser.add_argument('--pos-col-int', help = 'POS column location', type = int)
 
 	parser.add_argument('--chrom-pos-sep', help = 'Chromosome and position separator', type = str, default = '_')
-	parser.add_argument('--chrom-sep', help = 'Chromosome text and int separator - i.e. Chr1 or Chr_1', type = str)
 
 	parser.add_argument('--out-prefix', help = 'Output prefix', type = str, default = 'out')
 
@@ -70,17 +69,16 @@ def main():
 	elif plot_args['input_format'] == 'csv': input_separator = ','
 	else: raise Exception (f"Unknown input format: {plot_args['input_format']}")
 
-	# Assign if the file has a header
-	if plot_args['chrom_col'] and plot_args['pos_col']: input_kwargs = {}
-	else: input_kwargs = {'header': None}
-
-	# Read in the PBS data
-	plot_dataframe = pd.read_csv(plot_args['input_file'], sep = input_separator, **input_kwargs)
+	# Read in the data
+	if plot_args['chrom_col'] and plot_args['pos_col']:
+		plot_dataframe = pd.read_csv(plot_args['input_file'], sep = input_separator, low_memory = False)
+	else:
+		plot_dataframe = pd.read_csv(plot_args['input_file'], sep = input_separator, header = None, low_memory = False)
 
 	# Assign the plot columns
 	plot_chrom_col = plot_args['chrom_col'] if plot_args['chrom_col'] else plot_args['plot_chrom_text']
 	plot_chrom_int_col = f"{plot_chrom_col}_int"
-	plot_pos_col =  plot_args['pos_col'] if plot_args['pos_col'] else 'POS'
+	plot_pos_col = f"{plot_args['pos_col']}_POS"  if plot_args['pos_col'] else 'POS'
 	plot_stat_col = plot_args['stat_col'] if plot_args['stat_col'] else plot_args['plot_stat_text']
 
 	# Check if the statistic column needs to be renamed
@@ -89,9 +87,11 @@ def main():
 		plot_dataframe = plot_dataframe.rename(columns={plot_args['stat_col_int']: plot_stat_col})
 		
 	# Check if the chromosomes and positions are in the same column
-	if plot_args['chrom_col_int'] == plot_args['pos_col_int']:
-		plot_dataframe[[plot_chrom_col, plot_pos_col]] = plot_dataframe[0].str.rsplit('_', n = 1, expand = True)
-	
+	if plot_args['chrom_col_int'] and plot_args['chrom_col_int'] == plot_args['pos_col_int']:
+		plot_dataframe[[plot_chrom_col, plot_pos_col]] = plot_dataframe[plot_args['chrom_col_int']].str.rsplit('_', n = 1, expand = True)
+	elif plot_args['chrom_col'] == plot_args['pos_col']:
+		plot_dataframe[[plot_chrom_col, plot_pos_col]] = plot_dataframe[plot_args['chrom_col']].str.rsplit('_', n = 1, expand = True)
+
 	# Confirm the position column is an integer, for sorting
 	plot_dataframe[plot_pos_col] = plot_dataframe[plot_pos_col].astype(int)
 
@@ -107,9 +107,9 @@ def main():
 	except:
 		
 		# Assign the integer chromosome column location if a separator is specified
-		if plot_args['chrom_sep']:
-			chrom_int_pos = getChromInt(plot_dataframe[plot_chrom_col][0], plot_args['chrom_sep'])
-			plot_dataframe[plot_chrom_int_col] = plot_dataframe[plot_chrom_col].str.split(plot_args['chrom_sep'], expand = True)[chrom_int_pos].astype(int)
+		if plot_args['chrom_pos_sep']:
+			chrom_int_pos = getChromInt(plot_dataframe[plot_chrom_col][0], plot_args['chrom_pos_sep'])
+			plot_dataframe[plot_chrom_int_col] = plot_dataframe[plot_chrom_col].str.split(plot_args['chrom_pos_sep'], expand = True)[chrom_int_pos].astype(int)
 		
 		# Otherwise, assign the chromosome column as the integer column
 		else: plot_dataframe[plot_chrom_int_col] = plot_dataframe[plot_chrom_col]
