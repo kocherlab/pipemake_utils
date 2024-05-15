@@ -3,6 +3,7 @@
 import argparse
 
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 from pipemake_utils.misc import *
@@ -33,9 +34,10 @@ def argParser ():
 	parser.add_argument('--out-prefix', help = 'Output prefix', type = str, default = 'out')
 
 	parser.add_argument('--plot-chrom-text', help = 'Chromosome plot text', type = str, default = 'Chromosome')
-	parser.add_argument('--plot-abs', help = 'Plot the absolute value instead', action='store_true')
+	parser.add_argument('--plot-abs', help = 'Plot the absolute value of the statistic', action = 'store_true')
+	parser.add_argument('--plot-neg-log', help = 'Plot the -log10 of the statistic', type = int, action = 'store_true')
 	parser.add_argument('--plot-dpi', help = 'Plot DPI', type = int, default = 100)
-
+	
 	return vars(parser.parse_args())
 
 def getChromInt (chrom_text, sep):
@@ -99,7 +101,12 @@ def main():
 	plot_dataframe = plot_dataframe[[plot_chrom_col, plot_pos_col, plot_stat_col]]
 
 	# Plot the absolute value, if specified
-	if plot_args['plot_abs']: plot_dataframe[plot_stat_col] = plot_dataframe[plot_stat_col].abs()
+	if plot_args['plot_abs']: 
+		plot_dataframe[plot_stat_col] = plot_dataframe[plot_stat_col].abs()
+		plot_dataframe = plot_dataframe.rename(columns={plot_stat_col: f"ABS({plot_stat_col})"})		
+	elif plot_args['plot_neg_log']: 
+		plot_dataframe[plot_stat_col] = -np.log10(plot_dataframe[plot_stat_col])
+		plot_dataframe = plot_dataframe.rename(columns={plot_stat_col: f"-log10({plot_stat_col})"})
 
 	# Check if the chomosome column are integers
 	try: plot_dataframe[plot_chrom_int_col] = plot_dataframe[plot_chrom_col].astype(int)
