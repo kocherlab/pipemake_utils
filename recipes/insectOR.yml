@@ -5,6 +5,7 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_gnu
+  - biopython=1.76=py27h516909a_0
   - bzip2=1.0.8=hd590300_5
   - ca-certificates=2024.2.2=hbcca054_0
   - certifi=2019.11.28=py27h8c360ce_1
@@ -25,6 +26,8 @@ dependencies:
   - icu=68.2=h9c3ff4c_0
   - jpeg=9e=h0b41bf4_3
   - lerc=4.0.0=h27087fc_0
+  - libblas=3.9.0=22_linux64_openblas
+  - libcblas=3.9.0=22_linux64_openblas
   - libdeflate=1.14=h166bdaf_0
   - libexpat=2.6.2=h59595ed_0
   - libffi=3.4.2=h7f98852_5
@@ -36,6 +39,8 @@ dependencies:
   - libglib=2.80.2=hf974151_0
   - libgomp=13.2.0=h77fa898_7
   - libiconv=1.17=hd590300_2
+  - liblapack=3.9.0=22_linux64_openblas
+  - libopenblas=0.3.27=pthreads_h413a1c8_0
   - libpng=1.6.43=h2797004_0
   - libstdcxx-ng=13.2.0=hc0a3c3a_7
   - libtiff=4.4.0=h82bc61c_5
@@ -48,6 +53,7 @@ dependencies:
   - meme=5.4.1=py27pl5262h3657f31_0
   - mpi=1.0=openmpi
   - ncurses=6.5=h59595ed_0
+  - numpy=1.16.5=py27h95a1406_0
   - openmpi=4.1.6=hc5af2df_101
   - openssl=1.0.2u=h516909a_0
   - pcre2=10.43=hcad00b1_0
@@ -105,4 +111,4 @@ dependencies:
   - yaml=0.2.5=h7f98852_2
   - zlib=1.2.13=h4ab18f5_6
   - zstd=1.5.6=ha6fb4c9_0
-prefix: /home/aewebb80/miniforge3/envs/insectOR
+prefix: /home/aewebb/miniforge3/envs/insectOR
