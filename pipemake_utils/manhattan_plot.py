@@ -35,7 +35,7 @@ def argParser ():
 
 	parser.add_argument('--plot-chrom-text', help = 'Chromosome plot text', type = str, default = 'Chromosome')
 	parser.add_argument('--plot-abs', help = 'Plot the absolute value of the statistic', action = 'store_true')
-	parser.add_argument('--plot-neg-log', help = 'Plot the -log10 of the statistic', type = int, action = 'store_true')
+	parser.add_argument('--plot-neg-log', help = 'Plot the -log10 of the statistic', action = 'store_true')
 	parser.add_argument('--plot-dpi', help = 'Plot DPI', type = int, default = 100)
 	
 	return vars(parser.parse_args())
@@ -80,7 +80,7 @@ def main():
 	# Assign the plot columns
 	plot_chrom_col = plot_args['chrom_col'] if plot_args['chrom_col'] else plot_args['plot_chrom_text']
 	plot_chrom_int_col = f"{plot_chrom_col}_int"
-	plot_pos_col = f"{plot_args['pos_col']}_POS"  if plot_args['pos_col'] else 'POS'
+	plot_pos_col = f"{plot_args['pos_col']}_POS" if plot_args['pos_col'] else 'POS'
 	plot_stat_col = plot_args['stat_col'] if plot_args['stat_col'] else plot_args['plot_stat_text']
 
 	# Check if the statistic column needs to be renamed
@@ -93,6 +93,9 @@ def main():
 		plot_dataframe[[plot_chrom_col, plot_pos_col]] = plot_dataframe[plot_args['chrom_col_int']].str.rsplit('_', n = 1, expand = True)
 	elif plot_args['chrom_col'] == plot_args['pos_col']:
 		plot_dataframe[[plot_chrom_col, plot_pos_col]] = plot_dataframe[plot_args['chrom_col']].str.rsplit('_', n = 1, expand = True)
+	elif plot_args['chrom_col'] and plot_args['pos_col']:
+		plot_dataframe[plot_pos_col] = plot_dataframe[plot_args['pos_col']].astype(int)
+
 
 	# Confirm the position column is an integer, for sorting
 	plot_dataframe[plot_pos_col] = plot_dataframe[plot_pos_col].astype(int)

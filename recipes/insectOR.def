@@ -1,0 +1,41 @@
+Bootstrap: docker
+
+From: continuumio/miniconda3
+
+%files
+    insectOR.yml
+    insectOR.tar.gz
+
+%environment
+    export LC_ALL=C
+    export LC_NUMERIC=en_GB.UTF-8
+    export PATH="/opt/conda/bin:$PATH"
+    export PATH="/opt/conda/envs/insectOR/bin:$PATH"
+    export PATH="/opt/bin/:$PATH"
+
+%runscript
+    exec "$@"
+
+%post
+    #install base software
+    apt-get update -y
+    apt-get install build-essential -y
+    
+    #install conda insectOR.yml file
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+    echo "conda activate insectOR" >> $SINGULARITY_ENVIRONMENT
+    /opt/conda/bin/conda env create -f insectOR.yml
+
+    #create bin directory
+    mkdir /opt/bin/
+
+    #install hmmtop
+    tar -xzf insectOR.tar.gz
+    cd insectOR/hmmtop_2.1/
+    cc hmmtop.c -lm -o hmmtop
+    mv hmmtop /opt/bin/
+    chmod +x /opt/bin/hmmtop
+
+    # Activate conda env, clone and install mypkg
+    . /opt/conda/bin/activate insectOR
+
