@@ -11,8 +11,9 @@ From: continuumio/miniconda3
     export LC_NUMERIC=en_GB.UTF-8
     export PATH="/opt/conda/bin:$PATH"
     export PATH="/opt/conda/envs/insectOR/bin:$PATH"
-    export PATH="/opt/bin/:$PATH"
-    #export LD_LIBRARY_PATH="/opt/conda/envs/insectOR/lib:$LD_LIBRARY_PATH"
+    export PATH="/opt/insectOR/bin/:$PATH"
+    export HMMTOP_ARCH="/opt/conda/envs/insectOR/share/hmmtop/hmmtop.arch"
+    export HMMTOP_PSV="/opt/conda/envs/insectOR/share/hmmtop/hmmtop.psv"
 
 %runscript
     exec "$@"
@@ -28,13 +29,16 @@ From: continuumio/miniconda3
     /opt/conda/bin/conda env create -f insectOR.yml
 
     #install hmmtop
+    mkdir /opt/conda/envs/insectOR/share/hmmtop
     tar -xzf insectOR.tar.gz
     cd insectOR/hmmtop_2.1/
     cc hmmtop.c -lm -o hmmtop
     mv hmmtop /opt/conda/envs/insectOR/bin/
-    chmod +x /opt/conda/envs/insectOR/bin/hmmtop
+    mv hmmtop.arch /opt/conda/envs/insectOR/share/hmmtop
+    mv hmmtop.psv /opt/conda/envs/insectOR/share/hmmtop
     cd ../..
-
+    chmod +x /opt/conda/envs/insectOR/bin/hmmtop
+    
     #install phobius
     mv insectOR/phobius/* /opt/conda/envs/insectOR/bin/
     chmod +x /opt/conda/envs/insectOR/bin/phobius.pl
@@ -50,6 +54,14 @@ From: continuumio/miniconda3
 
     #install GFFtools-GX-master
     mv insectOR/GFFtools-GX-master/*py /opt/conda/envs/insectOR/bin
+
+    #install insectOR
+    tar -xzf insectOR/insectOR-main.tar.gz
+    mv insectOR-main/ /opt/insectOR
+    mv insectOR/7tm_6.hmm /opt/insectOR/hmm
+    chmod +x /opt/insectOR/bin/scoreGenesOnScaffold.pl
+    chmod +x /opt/insectOR/bin/new_finalprocessing.py
+    chmod +x /opt/insectOR/bin/trial_graph.pl
 
     # Activate conda env, clone and install mypkg
     . /opt/conda/bin/activate insectOR
