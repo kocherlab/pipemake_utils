@@ -41,6 +41,7 @@ setup(
             "plot-pca = pipemake_utils.plot_pca:main",
             "manhattan-plot = pipemake_utils.manhattan_plot:main",
             "z-normalize = pipemake_utils.z_normalize:main",
+            "featureCounts-report = pipemake_utils.featureCounts_report:main",
         ],
     },
     python_requires=">=3.7",
