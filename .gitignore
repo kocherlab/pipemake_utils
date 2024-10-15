@@ -1,0 +1,17 @@
+dist
+build
+*.pyc
+*.egg-info
+
+# pycache
+pipemake/__pycache__/
+tests/__pycache__/
+
+# VSCode files
+.vscode/
+
+# OS generated files
+.DS_Store
+
+# Sphinx documentation
+docs/_build/
