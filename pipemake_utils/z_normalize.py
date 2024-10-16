@@ -25,7 +25,7 @@ def argParser ():
 	return vars(parser.parse_args())
 
 def zNormalize (array_col):
-	return sstats.zscore(array_col)
+	return sstats.zscore(array_col, nan_policy = 'omit')
 
 def main():
 

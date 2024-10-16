@@ -44,9 +44,15 @@ def checkGFF (gff_filename, id_dict):
 
 	# Create set of expected features
 	expected_features = set(['gene', 'mRNA', 'CDS', 'exon', 'intron', 'start_codon', 'stop_codon'])
+	optional_features = set(['three_prime_UTR'])
 
 	# Create set of the features within the gff
 	gff_features = set(gff_db.featuretypes())
+
+	# Check if optional features are present, and add to expected features if so
+	if optional_features.issubset(gff_features): expected_features = expected_features.union(optional_features)
+
+	# Confirm the features match
 	if expected_features != gff_features:
 		raise Exception (f'Unable to match GFF features: {gff_features}\n Expected: {expected_features}')
 	

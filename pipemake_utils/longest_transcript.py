@@ -4,7 +4,7 @@ import argparse
 
 from Bio import SeqIO
 
-from seqDB import sniffSeqFile, DBFileReader
+from pipemake_utils.seqDB import sniffSeqFile, DBFileReader
 
 def seqParser():
 
