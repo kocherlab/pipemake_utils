@@ -37,7 +37,7 @@ dependencies:
       - packaging==24.0
       - pandas==2.0.3
       - pillow==10.2.0
-      - pipemake-utils==0.1.27
+      - pipemake-utils==0.1.29
       - pyfaidx==0.8.1.1
       - pyparsing==3.1.2
       - python-dateutil==2.9.0.post0

@@ -28,7 +28,7 @@ def main():
         if merged_dataframe.empty:
             merged_dataframe = pd.DataFrame(count_series, columns=[sample])
         else:
-            merged_dataframe[sample] = count_series
+            merged_dataframe = merged_dataframe.join(count_series, how="outer")
 
     # Create the file
     merged_dataframe.index.name = None
