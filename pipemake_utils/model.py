@@ -1,20 +1,20 @@
 import os
-import sys
 import json
+import yaml
 import logging
-import itertools
 import copy
 
 import numpy as np
 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
+
 
 class ModelFile(dict):
     def __init__(self, *arg, **kw):
         super(ModelFile, self).__init__(*arg, **kw)
         self.inds = []
-        self.ind_file = ''
-        self.exclude_file = ''
+        self.ind_file = ""
+        self.exclude_file = ""
 
         if arg and self.confirm_model_instance(arg[1]):
             self.update_inds(arg[1])
@@ -23,24 +23,66 @@ class ModelFile(dict):
         super(ModelFile, self).__setitem__(*arg, **kw)
 
         if arg and self.confirm_model_instance(arg[1]):
-            self.update_inds(model = arg[1])
+            self.update_inds(model=arg[1])
 
     def __delitem__(self, key):
         super(ModelFile, self).__delitem__(key)
         self.update_inds()
 
-    def confirm_model_instance (self, unknown):
+    @classmethod
+    def read(cls, filename):
+        # Create ModelFile object
+        models_to_return = cls()
 
-        if isinstance(unknown, Model):
+        # Read the model file
+        models_dict = _readFile(filename, _sniffFormat(filename))
 
-            return True
+        # Loop the parsed models
+        for model_dict in models_dict:
+            # Check if model already exists
+            if str(model_dict["name"]) in models_to_return:
+                raise Exception(f'Model {model_dict["name"]} already exists')
 
+            # Create the model
+            model = Model.from_dict(model_dict)
+
+            # Save the model
+            models_to_return[str(model.name)] = model
+
+        logging.info(f"Finished reading model file ({filename})")
+
+        # Return the models
+        return models_to_return
+
+    def write(self, filename, format="YAML", overwrite=True):
+        # Check if the file is to be overwritten
+        if not overwrite:
+            # Check if the file exists
+            if os.path.exists(filename):
+                raise Exception(f"{filename} already exists")
+
+        # Open the output file
+        output_file = open(filename, "w")
+
+        # Create the model data to be written
+        models_data = [_d.to_dict() for _d in super(ModelFile, self).values()]
+
+        # Write the json-formmated data to the output file
+        if format.upper() == "JSON":
+            output_file.write(json.dumps(models_data, indent=4))
+        elif format.upper() == "YAML":
+            output_file.write(yaml.dump(models_data, default_flow_style=False))
         else:
+            raise Exception(
+                f"Unknown format for {format}. Supported model file formats are JSON and YAML."
+            )
 
-            return False
+        # Close the output file
+        output_file.close()
 
-    def copy_model (self, src_model_name, new_model_name):
+        logging.info(f"Finished writing model file: {filename}")
 
+    def copy_model(self, src_model_name, new_model_name):
         src_model = super(ModelFile, self).__getitem__(src_model_name)
 
         src_model_copy = copy.deepcopy(src_model)
@@ -49,43 +91,37 @@ class ModelFile(dict):
 
         super(ModelFile, self).__setitem__(new_model_name, src_model_copy)
 
-    def rename_model (self, src_model_name, new_model_name):
-
+    def rename_model(self, src_model_name, new_model_name):
         src_model = super(ModelFile, self).pop(src_model_name)
 
         src_model.name = new_model_name
 
         super(ModelFile, self).__setitem__(new_model_name, src_model)
 
-    def update_inds (self, model = None):
-
+    def update_inds(self, model=None):
         if self.confirm_model_instance(model):
-
             # Return error if inds is empty
             if not model.inds:
-                raise IOError('No individuals found in %s.' % model.name)
+                raise IOError("No individuals found in %s." % model.name)
 
             # Create a list of the unique individuals
             unique_inds = list(set(self.inds + model.inds))
 
         else:
-
             # Create an empty list for the unique individuals
             unique_inds = []
 
             # Loop the models in the file
             for model_in_file in super(ModelFile, self).values():
-
                 # Create a list of the unique individuals
                 unique_inds = list(set(unique_inds + model_in_file.inds))
-
 
         # Store the individuals
         self.inds = unique_inds
 
-    def create_ind_file (self, file_ext = '', file_path = '', overwrite = False):
+    def create_ind_file(self, file_ext="", file_path="", overwrite=False):
         # Assign the filename for the population file
-        ind_filename = 'unique_individuals' + file_ext
+        ind_filename = "unique_individuals" + file_ext
 
         # If a path is assigned, create the file at the specified location
         if file_path:
@@ -95,29 +131,30 @@ class ModelFile(dict):
         if not overwrite:
             # Check if the file already exists
             if os.path.isfile(ind_filename):
-                raise IOError('Individuals file exists. Use --overwrite to ignore')
+                raise IOError("Individuals file exists. Use --overwrite to ignore")
 
         # Create the population file
-        ind_file = open(ind_filename, 'w')
-        ind_file.write('%s\n' %'\n'.join(self.inds))
+        ind_file = open(ind_filename, "w")
+        ind_file.write("%s\n" % "\n".join(self.inds))
         ind_file.close()
 
         # Save the individuals filename
         self.ind_file = ind_filename
 
-    def delete_ind_file (self):
+    def delete_ind_file(self):
         # Check if an individuals file was created
         if self.ind_file:
-
             # Delete the individuals file
             os.remove(self.ind_file)
 
             # Remove the filename
-            self.ind_file = ''
+            self.ind_file = ""
 
-    def create_exclude_ind_file (self, inds_to_include = [], file_ext = '', file_path = '', overwrite = False):
+    def create_exclude_ind_file(
+        self, inds_to_include=[], file_ext="", file_path="", overwrite=False
+    ):
         # Assign the filename for the population file
-        ind_filename = 'exclude_individuals' + file_ext
+        ind_filename = "exclude_individuals" + file_ext
 
         # If a path is assigned, create the file at the specified location
         if file_path:
@@ -127,163 +164,185 @@ class ModelFile(dict):
         if not overwrite:
             # Check if the file already exists
             if os.path.isfile(ind_filename):
-                raise IOError('Individuals file exists.')
+                raise IOError("Individuals file exists.")
 
         # Create exclude list by removing included individuals
         exclude_inds = list(set(self.inds) - set(inds_to_include))
 
         # Create the population file
-        ind_file = open(ind_filename, 'w')
-        ind_file.write('%s\n' %'\n'.join(exclude_inds))
+        ind_file = open(ind_filename, "w")
+        ind_file.write("%s\n" % "\n".join(exclude_inds))
         ind_file.close()
 
         # Save the individuals filename
         self.exclude_file = ind_filename
 
-    def delete_exclude_ind_file (self):
+    def delete_exclude_ind_file(self):
         # Check if an individuals file was created
         if self.exclude_file:
-
             # Delete the individuals file
             os.remove(self.exclude_file)
 
             # Remove the filename
-            self.exclude_file = ''
+            self.exclude_file = ""
 
-    def to_json (self):
+    @staticmethod
+    def confirm_model_instance(unknown):
+        if isinstance(unknown, Model):
+            return True
 
-        model_file_json = []
+        else:
+            return False
 
-        for model_name, model_data in super(ModelFile, self).items():
-            model_file_json.append(model_data.to_json())
-
-        return model_file_json
 
 class Model:
-    def __init__ (self, name):
+    def __init__(self, name, pops={}, **kwargs):
         self.name = name
-        self.tree = ''
-        self.pop_list = []
         self.ind_dict = defaultdict(list)
-        self.nind = defaultdict(int)
+        self._pop_kwargs = {}
+        self._kwargs = kwargs
         self.pop_files = []
-        self.ind_file = ''
+        self.ind_file = ""
 
-    def __str__ (self):
+        # Loop the populations in the pops dict
+        for pop, pop_kwargs in pops.items():
+            # Check if the pop already exists
+            if pop in self.ind_dict:
+                raise Exception(f"{pop} already exists")
+
+            # Check if the inds are provided
+            if "inds" not in pop_kwargs:
+                raise Exception(f"No individuals found for {pop}")
+
+            # Assign the inds
+            inds = pop_kwargs["inds"]
+
+            # Create a set of individuals that are already assigned to a population
+            ind_set = set(inds).intersection(self.inds)
+
+            if ind_set:
+                raise Exception(
+                    f'Individuals already assigned to another population: {", ".join(ind_set)}'
+                )
+
+            # Assign the individuals to the population
+            self.ind_dict[pop] = [str(ind) for ind in inds]
+
+            # Save the population kwargs
+            del pop_kwargs["inds"]
+            if pop_kwargs:
+                self._pop_kwargs[pop] = pop_kwargs
+
+            logging.info(f"Population {pop} added to {self.name}")
+
+    def __str__(self):
         return self.name
 
     @property
-    def npop (self):
-        return len(self.pop_list)
+    def inds(self):
+        return [ind for pop in self.ind_dict for ind in self.ind_dict[pop]]
 
     @property
-    def inds (self):
-        return list(itertools.chain.from_iterable(self.ind_dict.values()))
+    def npop(self):
+        return len(self.ind_dict)
 
-    def assign_tree (self, tree):
-        self.tree = str(tree)
+    @property
+    def nind(self):
+        return {pop: len(inds) for pop, inds in self.ind_dict.items()}
 
-    def assign_pop (self, pop, inds = []):
-        self.pop_list.append(str(pop))
-        if inds:
-            self.ind_dict[pop] = [str(ind) for ind in inds]
-        self.nind[pop] = len(self.ind_dict[pop])
+    @classmethod
+    def from_dict(cls, model_dict):
+        return cls(**model_dict)
 
-    def remove_pop (self, pop):
+    def assign_pop(self, pop, inds=[]):
+        if not inds:
+            raise Exception("No individuals found for %s" % pop)
 
+        if pop in self.ind_dict:
+            raise Exception(f"{pop} already exists")
+
+        # Assign the dict
+        self.ind_dict[pop] = [str(ind) for ind in inds]
+
+    def remove_pop(self, pop):
         # Confirm the pop is in the model
-        if str(pop) not in self.pop_list:
-
+        if str(pop) not in self.ind_dict:
             # Raise error if pop not found
-            raise Exception('%s not found' % pop)
-            
-        self.pop_list.remove(str(pop))
+            raise Exception(f"{pop} not found")
+
         del self.ind_dict[pop]
-        del self.nind[pop]
 
-    def update_pop (self, pop, inds = [], rm_inds = []):
-        
+    def update_pop(self, pop, inds=[], rm_inds=[]):
         # Confirm the pop is in the model
-        if str(pop) not in self.pop_list:
-
+        if str(pop) not in self.ind_dict:
             # Raise error if pop not found
-            raise Exception('%s not found' % pop)
+            raise Exception(f"{pop} not found")
 
         if inds:
             self.ind_dict[pop].extend([str(ind) for ind in inds])
 
         if rm_inds:
             for rm_ind in rm_inds:
-                if str(rm_ind) in self.ind_dict[pop]: 
+                if str(rm_ind) in self.ind_dict[pop]:
                     self.ind_dict[pop].remove(str(rm_ind))
-            
-        self.nind[pop] = len(self.ind_dict[pop])
 
-    def sample_pop (self, pop, sample_size, with_replacements = False):
-
+    def sample_pop(self, pop, sample_size, with_replacements=False):
         # Confirm the pop is in the model
-        if str(pop) not in self.pop_list:
-
+        if str(pop) not in self.ind_dict:
             # Raise error if pop not found
-            raise Exception('%s not found' % pop)
+            raise Exception("%s not found" % pop)
 
         # Confirm the sample size is an int
         try:
-
             sample_size = int(sample_size)
 
-        except:
-
-            # Raise error if sample_size not an int
-            raise Exception('%s not int' % sample_size)
+        except Exception as e:
+            raise e
 
         # Check if the sample size is larger than the pop
         if int(sample_size) > self.nind[pop]:
-
             # Raise error if sample_size is larger
-            raise Exception('%s is larger than %s' % (sample_size, pop))
+            raise Exception(f"The samples size ({sample_size}) is larger than {pop}")
 
         # Use numpy choice to randomly sample the pop
-        sampled_inds = np.random.choice(self.ind_dict[pop], sample_size, replace = with_replacements)
+        sampled_inds = np.random.choice(
+            self.ind_dict[pop], sample_size, replace=with_replacements
+        )
 
         # Save the sampled inds as a list
         self.ind_dict[pop] = list(sampled_inds)
 
-    def sample_pops (self, sample_size, with_replacements = False):
-
+    def sample_pops(self, sample_size, with_replacements=False):
         # Confirm the sample size is an int
         try:
-
             sample_size = int(sample_size)
 
-        except:
-
-            # Raise error if sample_size not an int
-            raise Exception('%s not int' % sample_size)
+        except Exception as e:
+            raise e
 
         # Loop each pop in the pop list
-        for pop in self.pop_list:
-
+        for pop in self.ind_dict:
             # Check if the sample size is larger than the pop
             if int(sample_size) > self.nind[pop]:
-
                 # Raise error if sample_size is larger
-                raise Exception('%s is larger than %s' % (sample_size, pop))
+                raise Exception(
+                    f"The samples size ({sample_size}) is larger than {pop}"
+                )
 
         # Loop each pop in the pop list, if no error raised
-        for pop in self.pop_list:
-
+        for pop in self.ind_dict:
             # Use numpy choice to randomly sample the pop
-            sampled_inds = np.random.choice(self.ind_dict[pop], sample_size, replace = with_replacements)
+            sampled_inds = np.random.choice(
+                self.ind_dict[pop], sample_size, replace=with_replacements
+            )
 
             # Save the sampled inds as a list
             self.ind_dict[pop] = list(sampled_inds)
 
-    def create_pop_files (self, file_ext = '', file_path = '', overwrite = False):
-        for pop in self.pop_list:
-            
+    def create_pop_files(self, file_ext="", file_path="", overwrite=False):
+        for pop in self.ind_dict:
             # Assign the filename for the population file
-            pop_filename = f'{pop}.{file_ext}'
+            pop_filename = f"{pop}.{file_ext}"
 
             # If a path is assigned, create the file at the specified location
             if file_path:
@@ -293,22 +352,21 @@ class Model:
             if not overwrite:
                 # Check if the file already exists
                 if os.path.isfile(pop_filename):
-                    raise IOError('Population file exists.')
+                    raise IOError(f"Population file exists: {pop_filename}")
 
             # Create the population file
-            pop_file = open(pop_filename, 'w')
-            pop_file.write('%s\n' %'\n'.join(self.ind_dict[pop]))
+            pop_file = open(pop_filename, "w")
+            pop_file.write("%s\n" % "\n".join(self.ind_dict[pop]))
             pop_file.close()
 
             # Save the population filename
             self.pop_files.append(pop_filename)
 
-        logging.info('Population files created for %s' % self)
+        logging.info(f"Population files created for {self.name}")
 
-    def delete_pop_files (self):
+    def delete_pop_files(self):
         # Check if pop files were created
         if len(self.pop_files) != 0:
-
             # Loop the created pop files
             for pop_file in self.pop_files:
                 # Delete the pop file
@@ -317,11 +375,11 @@ class Model:
             # Remove the filenames
             self.pop_files = []
 
-            logging.info('Population files deleted for %s' % self)
+            logging.info(f"Population files deleted for {self.name}")
 
-    def create_ind_file (self, file_ext = '', file_path = '', overwrite = False):
+    def create_ind_file(self, file_ext="", file_path="", overwrite=False):
         # Assign the filename for the population file
-        ind_filename = 'individual.keep' + file_ext
+        ind_filename = "individual.keep" + file_ext
 
         # If a path is assigned, create the file at the specified location
         if file_path:
@@ -331,140 +389,108 @@ class Model:
         if not overwrite:
             # Check if the file already exists
             if os.path.isfile(ind_filename):
-                raise IOError('Individuals file exists.')
+                raise IOError("Individuals file exists.")
 
         # Create the population file
-        ind_file = open(ind_filename, 'w')
-        ind_file.write('%s\n' %'\n'.join(self.inds))
+        ind_file = open(ind_filename, "w")
+        ind_file.write("%s\n" % "\n".join(self.inds))
         ind_file.close()
 
         # Save the individuals filename
         self.ind_file = ind_filename
 
-        logging.info('Individuals file created for %s' % self)
+        logging.info(f"Individuals file created for {self.name}")
 
-    def delete_ind_file (self):
+    def delete_ind_file(self):
         # Check if an individuals file was created
         if self.ind_file:
-
             # Delete the individuals file
             os.remove(self.ind_file)
 
             # Remove the filename
-            self.ind_file = ''
+            self.ind_file = ""
 
-            logging.info('Individuals file deleted for %s' % self)
+            logging.info(f"Individuals file deleted for {self.name}")
 
-    def to_json (self):
-
-        model_json = OrderedDict()
-
-        model_json['name'] = self.name
-
-        pop_json = OrderedDict()
-
-        model_json['tree'] = self.tree
-
-        for pop in self.pop_list:
-
-            pop_json[pop] = OrderedDict()
-
-            pop_json[pop]['inds'] = self.ind_dict[pop]
-
-        model_json['pops'] = pop_json
-
-        return model_json
-
-    def return_pop (self, ind):
-
+    def return_pop(self, ind):
         # Loop the pops within the model
         for pop, inds in self.ind_dict.items():
-
             # Check if the ind belongs to the pop
             if ind in inds:
-
                 return pop
 
-        raise Exception('Individual (%s) not found within %s' % (ind, self.name))
+        # Raise error if ind not found
+        raise Exception(f"Individual ({ind}) not found within {self.name}")
 
-def readModelFile (filename):
-    """
-    returns a ModelFile, which is a dictionary    
-    """
+    def to_dict(self):
+        # Create a dictionary to store the model data
+        model_dict = {}
 
-    # Check that the file exists
-    if not os.path.isfile(filename):
-        raise IOError
+        # Save the model name
+        model_dict["name"] = self.name
 
-    # Create ModelFile object
-    models_to_return = ModelFile()
+        # Save the model tree if it exists
+        for arg, value in self._kwargs.items():
+            model_dict[arg] = value
 
-    # Check if using python 2 or 3
-    if sys.version_info[0] == 2:
-        # Open the model file in python 2
-        model_file = open(filename, 'rU')
-    else:
-        # Open the model file in python 3
-        model_file = open(filename, 'r', newline=None)
-
-    # Parse the model file using the json reader
-    models_dict = json.load(model_file)
-    model_file.close()
-
-    # List to store all unique individuals (i.e. individuals in all models)
-    individual_list = []
-
-    # Loop the parsed models
-    for model_dict in models_dict:
-
-        # Create the model
-        model = Model(str(model_dict['name']))
-
-        # Check if model has a tree
-        if 'tree' in model_dict:
-
-            # Assign the model tree
-            model.assign_tree(model_dict['tree'])
+        # Create a dictionary to store the populations
+        pop_dict = {}
 
         # Loop the populations in the model
-        for pop, pop_dict in model_dict['pops'].items():
+        for pop in self.ind_dict:
+            # Store the individuals in the population
+            pop_dict[pop] = {}
+            pop_dict[pop]["inds"] = self.ind_dict[pop]
 
-            # Convert all individuals names to str
-            ind_list = [str(pop_ind) for pop_ind in pop_dict['inds']]
+        # Save the populations in the model
+        model_dict["pops"] = pop_dict
 
-            # Assign the population ans it's individuals to the model
-            model.assign_pop(str(pop), ind_list)
+        return model_dict
 
-            # Assign the individuals to the unique individual list
-            individual_list.extend(ind_list)
 
-        # Remove duplicates from the unique individual list
-        individual_list = list(set(individual_list))
+def _sniffFormat(filename):
+    # Try to open the model file in JSON format
+    try:
+        with open(filename, "r") as model_file:
+            json.load(model_file)
+        return "JSON"
+    except FileNotFoundError as e:
+        raise e
+    except Exception:
+        pass
 
-        # Save the model
-        models_to_return[str(model.name)] = model
+    # Try to open the model file in YAML format
+    try:
+        with open(filename, "r") as model_file:
+            yaml.load(model_file, Loader=yaml.FullLoader)
+        return "YAML"
+    except FileNotFoundError as e:
+        raise e
+    except Exception:
+        pass
 
-    logging.info('Finished reading model file (%s)' % filename)
+    raise Exception(
+        f"Unknown format for {filename}. Supported model file formats are JSON and YAML."
+    )
 
-    # Return the models
-    return models_to_return
 
-def writeModelFile (model_file, filename, overwrite = False):
+def _readFile(filename, format):
+    class UniqueKeyLoader(yaml.SafeLoader):
+        def construct_mapping(self, node, deep=False):
+            mapping = set()
+            for key_node, value_node in node.value:
+                if ":merge" in key_node.tag:
+                    continue
+                key = self.construct_object(key_node, deep=deep)
+                if key in mapping:
+                    raise ValueError(f"Duplicate {key!r} key found in YAML.")
+                mapping.add(key)
+            return super().construct_mapping(node, deep)
 
-    # Check if the file is to be overwritten
-    if not overwrite:
+    with open(filename, "r") as model_file:
+        if format == "JSON":
+            model_dict = json.load(model_file)
+        elif format == "YAML":
+            model_dict = yaml.load(model_file, Loader=UniqueKeyLoader)
 
-        # Check if the file exists
-        if os.path.exists(filename):
-            raise Exception('%s already exists' % filename)
-
-    # Open the output file
-    output_file = open(filename, 'w')
-
-    # Write the json-formmated data to the output file
-    output_file.write(json.dumps(model_file.to_json(), indent = 4))
-
-    # Close the output file
-    output_file.close()
-
-    logging.info('Finished writing model file (%s)' % filename)
+    return model_dict
