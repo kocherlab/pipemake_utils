@@ -2,7 +2,10 @@ import re
 import logging
 
 from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
+
 from collections import defaultdict
+
 
 def sniffSeqFile(input_filename, file_format="fasta", limit=10):
     def sniff(seq):
@@ -19,7 +22,7 @@ def sniffSeqFile(input_filename, file_format="fasta", limit=10):
             raise ValueError("Multiple sequence types found")
 
         return seq_matches[0]
-    
+
     logging.info(f"Sniffing the sequence file: {input_filename}")
 
     # Create dict to store sniffs
@@ -61,9 +64,8 @@ class DBFileReader:
     def __iter__(self):
         # Parse the fasta file
         for record in SeqIO.parse(self.input_filename, self.file_format):
-
             # Check if record is divisible by 3
-            if self.type == 'cds' and len(record.seq) % 3 != 0:
+            if self.type == "cds" and len(record.seq) % 3 != 0:
                 logging.warning(f"{record.id} is not divisible by 3")
                 continue
 
@@ -81,7 +83,7 @@ class DBFileReader:
                 record_attributes, skip_attributes=[self.primary_id]
             )
 
-            yield record
+            yield DBRecord(record, self.primary_id)
 
     @classmethod
     def read(cls, database, input_filename, file_type, file_format="fasta", **kwargs):
@@ -198,3 +200,77 @@ class DBFileReader:
             attribute_str += "[%s=%s]" % (_k, _v)
 
         return attribute_str
+
+
+class DBRecord(SeqRecord):
+    def __init__(self, record, primary_id):
+        super().__init__(
+            record.seq,
+            id=record.id,
+            name=record.name,
+            description=record.description,
+        )
+
+        # Assign the primary id from the database
+        self.primary_id = primary_id
+        self._gene_id = None
+        self._protein_id = None
+
+    @property
+    def gene_id(self):
+        # Check if the gene id is already assigned
+        if self._gene_id:
+            return self._gene_id
+
+        # Assign the gene id
+        self._gene_id = self._returnGeneID()
+        return self._gene_id
+
+    @property
+    def protein_id(self):
+        # Check if the gene id is already assigned
+        if self._protein_id:
+            return self._protein_id
+
+        # Assign the gene id
+        self._protein_id = self._returnTranscriptID()
+        return self._protein_id
+
+    @property
+    def transcript_id(self):
+        # Check if the gene id is already assigned
+        if self._protein_id:
+            return self._protein_id
+
+        # Assign the gene id
+        self._protein_id = self._returnTranscriptID()
+        return self._protein_id
+
+    def _returnGeneID(self):
+        # Check if the gene is the primary id
+        if self.primary_id == "gene":
+            return self.id
+
+        # Split by [ and ] to get the attributes
+        for _s in re.split(r"\[|\]", self.description):
+            # Skip if the string is not an attribute
+            if "=" not in _s.strip():
+                continue
+            if "gene=" in _s:
+                return _s.split("=")[1]
+
+    def _returnTranscriptID(self):
+        # Check if the gene is the primary id
+        if self.primary_id == "protein_id":
+            return self.id
+
+        # Split by [ and ] to get the attributes
+        for _s in re.split(r"\[|\]", self.description):
+            # Skip if the string is not an attribute
+            if "=" not in _s.strip():
+                continue
+            if "protein_id=" in _s:
+                return _s.split("=")[1]
+
+    def addAttribute(self, key, value):
+        self.description += f" [{key}={value}]"

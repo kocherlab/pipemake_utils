@@ -44,6 +44,7 @@ setup(
             "featureCounts-report = pipemake_utils.featureCounts_report:main",
             "softmask = pipemake_utils.softmask:main",
             "longest-transcript = pipemake_utils.longest_transcript:main",
+            "add-eggnog-annotations = pipemake_utils.add_eggnog_annotations:main",
         ],
     },
     python_requires=">=3.7",
