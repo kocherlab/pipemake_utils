@@ -36,6 +36,7 @@ requirements:
   run:
     - pip
     - python >=3.8
+    - conda-forge::python_abi
     - bioconda::gffutils >=0.13
     - conda-forge::biopython >=1.84
     - conda-forge::seaborn >=0.13.2
