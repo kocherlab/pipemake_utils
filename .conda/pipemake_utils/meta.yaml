@@ -2,7 +2,7 @@
 {% set data = load_setup_py_data() %}
 
 package:
-  name: pipemake
+  name: pipemake_utils
   version: {{ data.get('version') }}
 
 about:
@@ -13,7 +13,18 @@ about:
 build:
   number: 0
   entry_points:
-    - pipemake=pipemake.pipemake:main
+    - process-braker=pipemake_utils.process_braker:main
+    - ped-phenotype-file=pipemake_utils.ped_phenotype_file:main
+    - model-inds=pipemake_utils.model_inds:main
+    - filter-gemma=pipemake_utils.filter_gemma:main
+    - model-pop-files=pipemake_utils.model_pop_files:main
+    - plot-pca=pipemake_utils.plot_pca:main
+    - manhattan-plot=pipemake_utils.manhattan_plot:main
+    - z-normalize=pipemake_utils.z_normalize:main
+    - featureCounts-report=pipemake_utils.featureCounts_report:main
+    - softmask=pipemake_utils.softmask:main
+    - longest-transcript=pipemake_utils.longest_transcript:main
+    - add-eggnog-annotations=pipemake_utils.add_eggnog_annotations:main
 
 source:
   path: ../../
