@@ -19,7 +19,7 @@ jobs:
         with:
           miniconda-version: "latest"
           mamba-version: "*"
-          activate-environment: pipemake
+          activate-environment: pipemake_utils
           environment-file: .conda/environment_build.yml
           python-version: 3.9
           channels: conda-forge,bioconda,conda-forge/label/python_rc
