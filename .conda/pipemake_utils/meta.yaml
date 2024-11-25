@@ -33,6 +33,7 @@ requirements:
   host:
     - pip
     - python >=3.8
+    - conda-forge/label/python_rc::_python_rc
   run:
     - pip
     - python >=3.8
