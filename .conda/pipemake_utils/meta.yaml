@@ -32,12 +32,12 @@ source:
 requirements:
   host:
     - pip
-    - python >=3.8
+    - python >=3.8,<=3.12
     - conda-forge/label/python_rc::_python_rc
   run:
     - pip
-    - python >=3.8
-    - conda-forge::python_abi
+    - python >=3.8,<=3.12
+    - conda-forge::python_abi <=3.12
     - bioconda::gffutils >=0.13
     - conda-forge::biopython >=1.84
     - conda-forge::seaborn >=0.13.2
