@@ -173,7 +173,7 @@ def main():
         )
 
     # Check if the chomosome column are integers
-    if plot_dataframe[plot_chrom_col].apply(float.is_integer).all():
+    if plot_dataframe[plot_chrom_col].str.isdigit().all():
         plot_dataframe[plot_chrom_int_col] = plot_dataframe[plot_chrom_col].astype(int)
     else:
         # Assign the integer chromosome column location if a separator is specified
