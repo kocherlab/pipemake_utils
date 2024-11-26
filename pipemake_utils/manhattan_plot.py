@@ -166,11 +166,13 @@ def main():
         plot_dataframe = plot_dataframe.rename(
             columns={plot_stat_col: f"ABS({plot_stat_col})"}
         )
+        plot_stat_col = f"ABS({plot_stat_col})"
     elif plot_args["plot_neg_log"]:
         plot_dataframe[plot_stat_col] = -np.log10(plot_dataframe[plot_stat_col])
         plot_dataframe = plot_dataframe.rename(
             columns={plot_stat_col: f"-log10({plot_stat_col})"}
         )
+        plot_stat_col = f"-log10({plot_stat_col})"
 
     # Check if the chomosome column are integers
     if plot_dataframe[plot_chrom_col].str.isdigit().all():
