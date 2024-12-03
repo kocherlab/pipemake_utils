@@ -5,6 +5,8 @@ import gffutils
 from collections import defaultdict
 from cyvcf2 import VCF
 from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
 
 class DBVCF:
@@ -26,9 +28,21 @@ class DBVCF:
     def openVCF(cls, vcf_file):
         return cls(VCF(vcf_file))
 
-    def transcipts(self, genome_filename="", gff_filename="", format="fasta"):
+    def transcipts(
+        self,
+        genome_filename="",
+        outgroup_filename="",
+        gff_filename="",
+        format="fasta",
+        add_ref=False,
+    ):
         # Index the reference genome
         seq_index = SeqIO.index(genome_filename, format=format)
+
+        # Check if a outgroup file was provided
+        if outgroup_filename:
+            # Index the outgroup genome
+            outgroup_index = SeqIO.index(outgroup_filename, format=format)
 
         # Check if a GFFutils database already exists, if so don't create it
         if os.path.exists(f"{gff_filename}.db"):
@@ -62,18 +76,33 @@ class DBVCF:
                 exon_seqs = defaultdict(list)
 
                 # Get the reference sequence
-                ref_seq = seq_index[exon_coords[0]][exon_coords[1] - 1 : exon_coords[2]]
+                ref_seq_list = self.returnSeqFromIndex(
+                    seq_index,
+                    exon_coords[0],
+                    exon_coords[1],
+                    exon_coords[2],
+                    as_list=True,
+                )
 
-                # Convert the reference sequence to a list
-                ref_seq = list(str(ref_seq.seq).upper())
-
-                # Store the reference sequence
-                exon_seqs["ref"] = ref_seq
+                # Store the reference sequence, if requested
+                if add_ref:
+                    exon_seqs["ref"] = ref_seq_list
 
                 # Loop through the samples, and store the reference sequence
                 for sample in self.samples:
                     for i in range(1, self._ploidy + 1):
-                        exon_seqs[f"{sample}_{i}"] = ref_seq.copy()
+                        exon_seqs[f"{sample}_{i}"] = ref_seq_list.copy()
+
+                # Check if an outgroup file was provided
+                if outgroup_filename:
+                    # Store the outgroup sequence
+                    exon_seqs["outgroup"] = self.returnSeqFromIndex(
+                        outgroup_index,
+                        exon_coords[0],
+                        exon_coords[1],
+                        exon_coords[2],
+                        as_list=True,
+                    )
 
                 # Loop through the variants
                 for variant in self.vcf(
@@ -103,11 +132,21 @@ class DBVCF:
                     else:
                         cds_seqs[sample] += "".join(seq_list)
 
-            # for sample, seq in cds_seqs.items():
-            #    print(f">{sample}")
-            # if sample == 'ref':
-            #    print(seq == cmp.upper())
-            #    #print()
+            # Create a fasta file with the CDS sequences
+            with open(f"{gff_transcript.id}.fasta", "w") as fasta_file:
+                for sample, seq in cds_seqs.items():
+                    SeqIO.write(
+                        SeqRecord(Seq(seq), id=sample, description=sample),
+                        fasta_file,
+                        format,
+                    )
+
+    @staticmethod
+    def returnSeqFromIndex(seq_index, chrom, start, end, as_list=False):
+        index_seq = str(seq_index[chrom][start - 1 : end].seq).upper()
+        if as_list:
+            return list(index_seq)
+        return index_seq
 
     @staticmethod
     def reverseComplement(seq_list):
@@ -123,7 +162,10 @@ class DBVCF:
             return "N"
 
 
-vcf = DBVCF.openVCF("LBAL_v3_filtered_10.vcf.gz")
+vcf = DBVCF.openVCF("LBAL_v3_filtered_05.vcf.gz")
 vcf.transcipts(
-    gff_filename="LBAL_OGS_v3.1.gff3", genome_filename="LBAL_genome_v3.fasta.gz"
+    gff_filename="LBAL_OGS_v3.1.gff3",
+    genome_filename="LBAL_genome_v3.fasta.gz",
+    outgroup_filename="LALB_on_LBAL_v3_filtered.fasta.gz",
+    add_ref=True,
 )
