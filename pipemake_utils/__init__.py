@@ -1,6 +1,6 @@
 # Basic Information
 __name__ = "pipemake_utils"
-__version__ = "1.2.1"
+__version__ = "1.2.0"
 __summary__ = "Pipemake Utilities"
 __url__ = "https://github.com/kocherlab/pipemake_utils"
 __code__ = "https://github.com/kocherlab/pipemake_utils"
