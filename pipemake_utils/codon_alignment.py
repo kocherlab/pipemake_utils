@@ -1,8 +1,8 @@
 import argparse
 
-from misc import confirmFile
-from align import mapGapsFromIndex
-from logger import startLogger, logArgDict
+from pipemake_utils.misc import confirmFile
+from pipemake_utils.align import mapGapsFromIndex
+from pipemake_utils.logger import startLogger, logArgDict
 
 
 def codonAlignmentParser():

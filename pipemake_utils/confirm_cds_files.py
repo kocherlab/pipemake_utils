@@ -1,9 +1,9 @@
 import os
 import argparse
 
-from misc import confirmDir
-from align import confirmCDS
-from logger import startLogger, logArgDict
+from pipemake_utils.misc import confirmDir
+from pipemake_utils.align import confirmCDS
+from pipemake_utils.logger import startLogger, logArgDict
 
 
 def confirmCDSParser():
