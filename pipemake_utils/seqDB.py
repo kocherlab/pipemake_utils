@@ -10,16 +10,16 @@ from collections import defaultdict
 def sniffSeqFile(input_filename, file_format="fasta", limit=10):
     def sniff(seq):
         seq_types = {
-            "dna": re.compile("^[acgtn]*$", re.I),
-            "protein": re.compile("^[acdefghiklmnpqrstvwy\*]*$", re.I),
+            "dna": re.compile("^[acgtn\-]*$", re.I),
+            "protein": re.compile("^[acdefghiklmnpqrstvwy\*\-]*$", re.I),
         }
         seq_matches = [_t for _t, _s in seq_types.items() if _s.search(str(seq))]
 
         # Check if format errors
         if not seq_matches:
             raise ValueError("Could not determine the sequence type")
-        if len(seq_matches) > 1:
-            raise ValueError("Multiple sequence types found")
+        if len(seq_matches) == 2:
+            seq_matches = ["dna"]
 
         return seq_matches[0]
 
