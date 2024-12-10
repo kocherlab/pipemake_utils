@@ -35,7 +35,12 @@ class DBVCF:
         gff_filename="",
         format="fasta",
         add_ref=False,
+        out_dir="",
     ):
+        # Check if the output directory exists
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
         # Index the reference genome
         seq_index = SeqIO.index(genome_filename, format=format)
 
@@ -133,7 +138,9 @@ class DBVCF:
                         cds_seqs[sample] += "".join(seq_list)
 
             # Create a fasta file with the CDS sequences
-            with open(f"{gff_transcript.id}.fasta", "w") as fasta_file:
+            with open(
+                os.path.join(out_dir, f"{gff_transcript.id}.fasta"), "w"
+            ) as fasta_file:
                 for sample, seq in cds_seqs.items():
                     SeqIO.write(
                         SeqRecord(Seq(seq), id=sample, description=sample),
@@ -166,6 +173,6 @@ vcf = DBVCF.openVCF("LBAL_v3_filtered_05.vcf.gz")
 vcf.transcipts(
     gff_filename="LBAL_OGS_v3.1.gff3",
     genome_filename="LBAL_genome_v3.fasta.gz",
-    outgroup_filename="LALB_on_LBAL_v3_filtered.fasta.gz",
     add_ref=True,
+    out_dir="Transcripts",
 )
