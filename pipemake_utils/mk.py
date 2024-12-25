@@ -133,7 +133,8 @@ def mk(input_file, format="fasta"):
     # Loop through the alignment by 3s
     for i in range(0, alignment_length, 3):
         # Check for missing data
-        if missingData(alignment[1:-1, i : i + 3]):
+
+        if missingData(alignment[:, i : i + 3]):
             continue
 
         # Assign the reference and outgroup sequences
