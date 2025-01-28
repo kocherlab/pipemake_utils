@@ -25,7 +25,7 @@ def main ():
 	hard_masked_dict = SeqIO.index(mask_args['hard_masked_fasta'], 'fasta')
 
 	# Create the soft-masked fasta
-	with open(f"{mask_args['output_fasta']}", 'w') as soft_masked_fasta:
+	with open(mask_args['output_fasta'], 'w') as soft_masked_fasta:
 		for unmasked_record in SeqIO.parse(mask_args['input_fasta'], 'fasta'):
 			hard_masked_record = hard_masked_dict[unmasked_record.id]
 
