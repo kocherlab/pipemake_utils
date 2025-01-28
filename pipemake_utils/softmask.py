@@ -13,7 +13,7 @@ def maskParser ():
 	# Add the arguments
 	mask_parser.add_argument('--input-fasta', help = 'Genome fasta', type = str, required = True)
 	mask_parser.add_argument('--hard-masked-fasta', help = 'Hard masked genome fasta', type = str, required = True)
-	mask_parser.add_argument('--output-prefix', help = 'The output prefix for the soft masked fasta', type = str, default = 'out')
+	mask_parser.add_argument('--output-fasta', help = 'The output prefix for the soft masked fasta', type = str, default = 'out.fa.masked')
 	return vars(mask_parser.parse_args())
 
 def main ():
@@ -25,7 +25,7 @@ def main ():
 	hard_masked_dict = SeqIO.index(mask_args['hard_masked_fasta'], 'fasta')
 
 	# Create the soft-masked fasta
-	with open(f"{mask_args['output_prefix']}.fasta", 'w') as soft_masked_fasta:
+	with open(f"{mask_args['output_fasta']}", 'w') as soft_masked_fasta:
 		for unmasked_record in SeqIO.parse(mask_args['input_fasta'], 'fasta'):
 			hard_masked_record = hard_masked_dict[unmasked_record.id]
 
