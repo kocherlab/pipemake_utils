@@ -31,7 +31,7 @@ jobs:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
         run: |
           conda build .conda/pipemake_utils --output-folder build
-          anaconda -t "$env:ANACONDA_API_TOKEN" upload --user kocherlab build/win-64/*.tar.bz2
+          anaconda -t "$env:ANACONDA_API_TOKEN" upload --user kocherlab build/win-64/*.conda
       - name: Build Ubuntu - External
         if: matrix.os == 'ubuntu-latest'
         shell: bash -l {0}
@@ -39,5 +39,5 @@ jobs:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
         run: |
           conda build .conda/pipemake_utils --output-folder build
-          anaconda -t "$ANACONDA_API_TOKEN" upload --user kocherlab build/linux-64/*.tar.bz2
+          anaconda -t "$ANACONDA_API_TOKEN" upload --user kocherlab build/linux-64/*.conda
         
