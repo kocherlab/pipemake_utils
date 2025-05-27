@@ -48,6 +48,8 @@ setup(
             "codon-alignment = pipemake_utils.codon_alignment:main",
             "confirm-cds-files = pipemake_utils.confirm_cds_files:main",
             "translate-seq-file = pipemake_utils.translate_seq_file:main",
+            "chunk-fasta = pipemake_utils.chunk_fasta:main",
+            "unchunk-blast = pipemake_utils.unchunk_blast:main",
         ],
     },
     python_requires=">=3.7",
