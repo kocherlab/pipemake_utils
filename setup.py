@@ -51,6 +51,7 @@ setup(
             "chunk-fasta = pipemake_utils.chunk_fasta:main",
             "unchunk-blast = pipemake_utils.unchunk_blast:main",
             "process-ncbi-annotations = pipemake_utils.process_ncbi_annotations:main",
+            "update-fasta = pipemake_utils.update_fasta:main",
         ],
     },
     python_requires=">=3.7",
