@@ -51,7 +51,7 @@ def generateGffDict(gff_filename, attributes, **kwargs):
 
 def updateFasta(gff_attribute_dict, fasta_filename, out_filename, **kwargs):
     
-    with open(f"{out_filename}.fasta", 'w') as fasta_out_file, open(fasta_filename, 'r') as fasta_in_file:
+    with open(f"{out_filename}", 'w') as fasta_out_file, open(fasta_filename, 'r') as fasta_in_file:
         for fasta_in_line in fasta_in_file:
             if fasta_in_line.startswith('>'):
                 # Extract the sequence ID from the FASTA header
