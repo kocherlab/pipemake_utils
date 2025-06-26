@@ -50,6 +50,7 @@ setup(
             "translate-seq-file = pipemake_utils.translate_seq_file:main",
             "chunk-fasta = pipemake_utils.chunk_fasta:main",
             "unchunk-blast = pipemake_utils.unchunk_blast:main",
+            "process-ncbi-annotations = pipemake_utils.process_ncbi_annotations:main",
         ],
     },
     python_requires=">=3.7",
