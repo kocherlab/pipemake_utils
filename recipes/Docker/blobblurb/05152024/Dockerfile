@@ -2,8 +2,8 @@ FROM condaforge/mambaforge
 ENV PATH /opt/conda/envs/blobblurb/bin:$PATH
 RUN mamba create -n blobblurb unzip python=3.11
 RUN echo "source activate blobblurb" > ~/.bashrc
-RUN pip install pandas==2.2.3 numpy==2.2.5 scipy==1.15.2
-RUN wget https://github.com/sheinasim-USDA/blobblurb/archive/refs/heads/master.zip
+RUN pip install pandas numpy==1.26.4 scipy
+RUN wget https://github.com/aewebb80/blobblurb/archive/refs/heads/master.zip
 RUN unzip master.zip
 RUN rm master.zip
 RUN sed -i '1s|.*|#!/usr/bin/env python|' blobblurb-master/blobblurb.py
