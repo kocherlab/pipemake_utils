@@ -49,9 +49,9 @@ def generateGffDict(gff_filename, attributes, **kwargs):
 
     return gff_mRNA_attribute_dict
 
-def updateFasta(gff_attribute_dict, fasta_filename, out_prefix, **kwargs):
+def updateFasta(gff_attribute_dict, fasta_filename, out_filename, **kwargs):
     
-    with open(f"{out_prefix}.fasta", 'w') as fasta_out_file, open(fasta_filename, 'r') as fasta_in_file:
+    with open(f"{out_filename}.fasta", 'w') as fasta_out_file, open(fasta_filename, 'r') as fasta_in_file:
         for fasta_in_line in fasta_in_file:
             if fasta_in_line.startswith('>'):
                 # Extract the sequence ID from the FASTA header
@@ -76,7 +76,7 @@ def processNCBIAnnotationsParser():
     parser.add_argument('--gff-file', dest = 'gff_filename', help = 'GTF output from the NCBI annotation pipeline', type = str, required = True, action = confirmFile())
     parser.add_argument('--fasta-file', dest = 'fasta_filename', help = 'FASTA file with sequences', type = str, required = True, action = confirmFile())
     parser.add_argument('--attributes', help = 'One or more GFF attributes to extract from the GTF file', type = str, nargs = '+', default = ['gene', 'product'])
-    parser.add_argument('--out-prefix', help = 'Output prefix for FASTA', type = str, default = 'out')
+    parser.add_argument('--out-file', dest = 'out_filename', help = 'Output prefix for FASTA', type = str, default = 'out.fa')
     
     return vars(parser.parse_args())
 
@@ -86,7 +86,7 @@ def main():
     process_ncbi_args = processNCBIAnnotationsParser()
 
     # Start logger and log the arguments
-    startLogger(f"{process_ncbi_args['out_prefix']}.update.log")
+    startLogger(f"{process_ncbi_args['out_filename']}.log")
     logArgDict(process_ncbi_args)
 
     # Generate the GFF dictionary with mRNA attributes
