@@ -53,6 +53,7 @@ setup(
             "process-ncbi-annotations = pipemake_utils.process_ncbi_annotations:main",
             "update-fasta = pipemake_utils.update_fasta:main",
             "split-fasta = pipemake_utils.split_fasta:main",
+            "models-ind = pipemake_utils.models_ind:main",
         ],
     },
     python_requires=">=3.7",
