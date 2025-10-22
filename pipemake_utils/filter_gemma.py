@@ -14,7 +14,7 @@ def argParser ():
 
 	parser.add_argument('--gemma-file', help = 'GEMMA output file', type = str, action = confirmFile(), required = True)
 	parser.add_argument('--min-log-pvalue', help = 'Minimum -log10(p-value) to keep', type = float, default = 0.5)
-	parser.add_argument('--out-prefix', help = 'Output prefix', type = str, default = 'out')
+	parser.add_argument('--out-filename', help = 'Output filename', type = str, default = 'out.filtered.txt')
 	parser.add_argument('--pvalue-col', help = 'P-value column to filter', type = str, default = 'p_wald')
 	parser.add_argument('--chrom-col', help = 'CRHOM column', type = str, default = 'chr')
 	parser.add_argument('--pos-col', help = 'POS column', type = str, default = 'ps')
@@ -27,7 +27,7 @@ def main():
 	filter_args = argParser()
 
 	# Start logger and log the arguments
-	startLogger(f"{filter_args['out_prefix']}.filtered.log")
+	startLogger(f"{filter_args['out_filename']}.log")
 	logArgDict(filter_args)
 
 	# Open the GEMMA output as a dataframe
@@ -51,7 +51,7 @@ def main():
 	logging.info(f"Filtering complete: Removed {pre_filter_values - gemma_dataframe.shape[0]} values ({gemma_dataframe.shape[0]} remaining)")
 
 	# Save the filtered GEMMA dataset	
-	gemma_dataframe.to_csv(f"{filter_args['out_prefix']}.filtered.assoc.txt", sep = '\t', index = False)
+	gemma_dataframe.to_csv(f"{filter_args['out_filename']}", sep = '\t', index = False)
 
 if __name__ == '__main__':
 	main()
