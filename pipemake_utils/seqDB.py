@@ -177,7 +177,7 @@ class DBFileReader:
         record_attributes = {}
 
         # Assign the gene and protein_id attributes
-        record_attributes["gene"] = record_description.split("-")[0]
+        record_attributes["gene"] = record_description.rsplit("-", 1)[0]
         record_attributes["protein_id"] = record_description
 
         return record_attributes
