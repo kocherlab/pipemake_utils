@@ -52,7 +52,7 @@ class DBFileReader:
         file_type,
         file_format="fasta",
         primary_id="gene",
-        limit_attributes=["gene", "protein", "protein_id"],
+        limit_attributes=["gene", "protein", "protein_id", "product"],
     ):
         self.database = database.lower()
         self.input_filename = input_filename
@@ -176,9 +176,28 @@ class DBFileReader:
     def _parsePipemakeAttributes(record_description, limit_attributes=[]):
         record_attributes = {}
 
+        # Assign the gene_id from the record description
+        gene_id = record_description.split()[0]
+        
         # Assign the gene and protein_id attributes
-        record_attributes["gene"] = record_description.rsplit("-", 1)[0]
-        record_attributes["protein_id"] = record_description
+        record_attributes["gene"] = gene_id.rsplit("-", 1)[0]
+        record_attributes["protein_id"] = gene_id
+
+        # Check for other attributes in square brackets
+        for _s in re.split(r"\[|\]", record_description):
+            # Skip if the string is not an attribute
+            if "=" not in _s.strip():
+                continue
+
+            # Split by = to get the key and value of the attribute
+            attribute_dict = _s.strip().split("=")
+
+            # Skip if the attribute is not in the limit_attributes
+            if limit_attributes and attribute_dict[0] not in limit_attributes:
+                continue
+
+            # Update the record_attributes dictionary
+            record_attributes[attribute_dict[0]] = attribute_dict[1]
 
         return record_attributes
 
