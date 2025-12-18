@@ -188,13 +188,17 @@ class DBFileReader:
             # Skip if the string is not an attribute
             if "=" not in _s.strip():
                 continue
-
+            
             # Split by = to get the key and value of the attribute
             attribute_dict = _s.strip().split("=")
 
             # Skip if the attribute is not in the limit_attributes
             if limit_attributes and attribute_dict[0] not in limit_attributes:
                 continue
+            
+            # Replace the gene with the protein
+            if attribute_dict[0] == 'gene':
+                attribute_dict[0] = 'protein'
 
             # Update the record_attributes dictionary
             record_attributes[attribute_dict[0]] = attribute_dict[1]
