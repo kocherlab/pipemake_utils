@@ -49,6 +49,17 @@ def generateGffDict(gff_filename, attributes, **kwargs):
             # Filter attributes based on the provided list
             mRNA_attribute_dict = {_attr: mRNA_attribute_dict[_attr] for _attr in attributes if _attr in mRNA_attribute_dict}
 
+            # Check if there is a gene attribute
+            if 'gene' in mRNA_attribute_dict:
+                
+                # Confirm no protein attribute exists
+                if 'protein' in mRNA_attribute_dict:
+                    raise Exception(f'Attribute dictionary assignment error for {mRNA_id}')
+                
+                # Update the gene entries to avoid assignment errors
+                mRNA_attribute_dict['protein'] = mRNA_attribute_dict["gene"]
+                del mRNA_attribute_dict["gene"]
+
             # Add the mRNA ID and its attributes to the dictionary
             gff_mRNA_attribute_dict[mRNA_id] = mRNA_attribute_dict
 
