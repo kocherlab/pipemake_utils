@@ -196,8 +196,8 @@ class DBFileReader:
             if limit_attributes and attribute_dict[0] not in limit_attributes:
                 continue
             
-            # Replace the gene with the protein
-            if attribute_dict[0] == 'gene':
+            # Replace the gene with the protein if just the name
+            if attribute_dict[0] == 'gene' and attribute_dict[1] not in record_attributes["protein_id"]:
                 attribute_dict[0] = 'protein'
 
             # Update the record_attributes dictionary
