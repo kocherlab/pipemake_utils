@@ -211,13 +211,13 @@ class DBFileReader:
 
         # Loop through the record attributes
         for _k, _v in record_attributes.items():
-            # Add space if the attribute_str is not empty
-            if attribute_str:
-                attribute_str += " "
-
             # Skip if the attributes if in skip_attributes
             if skip_attributes and _k in skip_attributes:
                 continue
+
+            # Add space if the attribute_str is not empty
+            if attribute_str:
+                attribute_str += " "
 
             # Update the attribute_str
             attribute_str += "[%s=%s]" % (_k, _v)
