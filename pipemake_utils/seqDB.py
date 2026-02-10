@@ -64,10 +64,10 @@ class DBFileReader:
     def __iter__(self):
         # Parse the fasta file
         for record in SeqIO.parse(self.input_filename, self.file_format):
-            # Check if record is divisible by 3
-            if self.type == "cds" and len(record.seq) % 3 != 0:
-                logging.warning(f"{record.id} is not divisible by 3")
-                continue
+
+            # Process the CDS records to ensure they are divisible by 3
+            if self.type == "cds":
+                record = self._processCDS(record)
 
             # Get the record attributes
             record_attributes = self._parseAttributes(
@@ -223,6 +223,24 @@ class DBFileReader:
             attribute_str += "[%s=%s]" % (_k, _v)
 
         return attribute_str
+
+    @staticmethod
+    def _processCDS (cds_record):
+
+        # Assign the codon remainder
+        remainder = len(cds_record.seq) % 3
+
+        # Check if the sequence is divisible by 3
+        if remainder == 0:
+            return cds_record
+
+        # If not, trim the sequence and log a warning
+        logging.warning(f"{cds_record.id} is not divisible by 3. Trimming the sequence.")
+
+        # Trim the sequence   
+        cds_record.seq = cds_record.seq[:-remainder]
+        
+        return cds_record
 
 
 class DBRecord(SeqRecord):

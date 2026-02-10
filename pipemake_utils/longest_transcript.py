@@ -103,7 +103,7 @@ def main():
         for record in longest_transcript.values():
             # Translate the sequence if needed
             if seq_args["input_type"] == "CDS" and seq_args["output_type"] == "AA":
-                record.seq = record.seq.translate()
+                record.seq = record.seq.translate(to_stop = True)
 
             # Write the record to the output file
             SeqIO.write(record, output_file, "fasta")
