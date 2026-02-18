@@ -1,9 +1,9 @@
 import os
 import logging
 import argparse
-from tkinter.filedialog import test
 
 from ete4 import Tree
+from ete4.treeview import TreeStyle
 from collections import defaultdict
 
 from pipemake_utils.misc import confirmDir, confirmFile
@@ -16,16 +16,31 @@ class GeneTree:
         self._origin_tree = Tree(tree_file, parser=1)
         self._labelled_tree = None
 
-    def isValid (self):
-   
+    def isValid (self, default_action = 'ignore'):
+
+        # Confirm the default action is valid
+        if default_action not in ['ignore', 'warning', 'error']:
+            raise ValueError(f"Invalid default_action: {default_action}")
+        
+        # Create a list to store messages about the validity of the tree
+        tree_violations = []
+
         # Iterate through the leaves of the tree
         for species, duplicate_leaves in self._yieldDuplicateLeafNames(self._origin_tree):
         
             # Check if the duplcates are in the same clade
             if duplicate_leaves != set(self._origin_tree.common_ancestor(duplicate_leaves).leaf_names()):
-                logging.warning(f"Non-sister duplicates found for species ({species}) in {self.tree_file}")
-                return False
-        
+                tree_violations.append(f"Non-sister duplicates found for species ({species}) in {self.tree_file}")
+
+        # Handle the tree violations based on the default action
+        if default_action == 'error' and tree_violations:
+            raise ValueError('\n'.join(tree_violations))
+        elif default_action == 'warning' and tree_violations:
+            logging.warning('\n'.join(tree_violations))
+            return False
+        elif default_action == 'ignore' and tree_violations:
+            logging.warning('\n'.join(tree_violations))
+            
         return True
     
     def label (self, node_label_dict, analysis_label_dict, analysis_label_symbols = '{}'):
@@ -36,6 +51,7 @@ class GeneTree:
         # Create a flag to indicate whether the tree has been labelled
         tree_labelled = False
 
+        # Loop through the node labels in the node label dictionary
         for node_label, groups in node_label_dict.items():
 
             if node_label not in analysis_label_dict:
@@ -52,13 +68,28 @@ class GeneTree:
                 if not node.is_leaf:
                     node_species = [_lf.split('-')[0] for _lf in node.leaf_names()]
 
+                    # Create bool to indicate whether non-sister duplicates are found for the current node
+                    non_sister_duplicates = False
+
+                    # Check if any of the duplicate leaves are found in the current node, and if so, check if they are sister duplicates
+                    for species, duplicate_leaves in self._yieldDuplicateLeafNames(labelled_tree):
+                        if set(node.leaf_names()).isdisjoint(duplicate_leaves):
+                            continue
+                        if duplicate_leaves != set(labelled_tree.common_ancestor(duplicate_leaves).leaf_names()):
+                            non_sister_duplicates = True
+                            break
+
+                    # If non-sister duplicates are found, skip the current node label and continue to the next node label
+                    if non_sister_duplicates:
+                        continue
+
                     # Check that each group in the label_dict is a subset of the node species
                     if any(set(group).isdisjoint(node_species) for group in groups):
                         continue
 
                     # If we reach this point, it means that the node_species contains at least one member of each group
                     group_members = [item for group in groups for item in group]
-                    
+
                     if not set(node_species).issubset(group_members):
                         continue
 
@@ -83,7 +114,12 @@ class GeneTree:
 
         # Label the duplicate leaves with the corresponding label from analysis_label_dict
         for species, duplicate_leaves in self._yieldDuplicateLeafNames(labelled_tree):
+            if species not in analysis_label_dict:
+                continue
             duplicate_node = labelled_tree.common_ancestor(duplicate_leaves)
+            if duplicate_leaves != set(duplicate_node.leaf_names()):
+                logging.warning(f"Node label {species} cannot be labelled. Non-sister duplicates found. Skipping for {self.tree_file}.")
+                continue
             mapped_node_label = analysis_label_dict[species]
             duplicate_node.name = f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
             tree_labelled = True
@@ -104,6 +140,10 @@ class GeneTree:
 
             # Write the labelled tree to the output directory
             self._labelled_tree.write(outfile = os.path.join(output_dir, self.tree_file), parser=parser)
+
+            # Open file to write the labelled tree as an ASCII string
+            with open(os.path.join(output_dir, f"{self.tree_file}.fig"), 'w') as ascii_file:
+              ascii_file.write(self._labelled_tree.to_str(props=['name']).replace('⊗', '─'))
         else:
             logging.error(f"No labelled tree to write for {self.tree_file}")
 
@@ -132,18 +172,6 @@ class GeneTree:
             species = leaf.name.split('-')[0]
             if species not in dup_species:
                 yield leaf
-
-def confirmTree (tree):
-   
-    # Iterate through the leaves of the tree
-    for species, duplicate_leaves in yieldDuplicateLeafNames(tree):
-    
-        # Check if the duplcates are in the same clade
-        if duplicate_leaves != set(tree.common_ancestor(duplicate_leaves).leaf_names()):
-            print(f"Error: Non-sister duplicates found for species {species}")
-            return False
-    
-    return True
 
 def createLabelDict (species_tree, species_label_symbols='[]'):
     label_dict = defaultdict(list)
