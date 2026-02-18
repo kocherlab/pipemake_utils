@@ -227,7 +227,7 @@ def main ():
 
     # Read in the species tree
     species_tree = Tree(tree_args['species_tree'], parser=1)
-    print(dir(species_tree))
+
     logging.info(f"Species tree read from {tree_args['species_tree']}")
 
     # Create a dictionary mapping node labels to the corresponding groups of species
