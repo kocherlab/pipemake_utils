@@ -1,6 +1,7 @@
 import os
 import logging
 import argparse
+from tkinter.filedialog import test
 
 from ete4 import Tree
 from collections import defaultdict
@@ -8,96 +9,129 @@ from collections import defaultdict
 from pipemake_utils.misc import confirmDir, confirmFile
 from pipemake_utils.logger import startLogger, logArgDict
 
-def returnDuplicateSpecies (tree):
-    species_list = [leaf.split('-')[0] for leaf in tree.leaf_names()]
-    dup_species = set([s for s in species_list if species_list.count(s) > 1])
-    return dup_species
+class GeneTree:
+    def __init__(self, tree_file):
 
-def yieldDuplicateLeafNames (tree):
+        self.tree_file =  os.path.basename(tree_file)
+        self._origin_tree = Tree(tree_file, parser=1)
+        self._labelled_tree = None
 
-    # Iterate through the duplicate species and yield the species name and the set of duplicate leaves
-    for species in returnDuplicateSpecies(tree):
-        duplicate_leaves = set()
-        for leaf in tree.leaf_names():
-            if leaf.startswith(species + '-'):
-                duplicate_leaves.add(leaf)
-        yield species, duplicate_leaves
-
-def yieldNonDuplicateLeaves (tree):
-    # Assign the duplicate species
-    dup_species = returnDuplicateSpecies(tree)
-
-    # Iterate through the leaves of the tree
-    for leaf in tree:
-        species = leaf.name.split('-')[0]
-        if species not in dup_species:
-            yield leaf
-
-def labelTreeNodes (tree, node_label_dict, analysis_label_dict, analysis_label_symbols = '{}'):
-
-    # Create a copy of the tree to label
-    labelled_tree = tree.copy()
-
-    # Create a flag to indicate whether the tree has been labelled
-    tree_labelled = False
-
-    for node_label, groups in node_label_dict.items():
-
-        if node_label not in analysis_label_dict:
-            print(f"Warning: node_label {node_label} not found in analysis_label_dict. Skipping this label.")
-            continue
-
-        # Assign the corresponding label from analysis_label_dict to node_label
-        mapped_node_label = analysis_label_dict[node_label]
-
-        # Creatge a flag to indicate whether the current node label has been applied
-        label_applied = False
+    def isValid (self):
+   
+        # Iterate through the leaves of the tree
+        for species, duplicate_leaves in self._yieldDuplicateLeafNames(self._origin_tree):
         
-        for node in labelled_tree.traverse('postorder'):
-            if not node.is_leaf:
-                node_species = [_lf.split('-')[0] for _lf in node.leaf_names()]
-
-                # Check that each group in the label_dict is a subset of the node species
-                if any(set(group).isdisjoint(node_species) for group in groups):
-                    continue
-
-                # If we reach this point, it means that the node_species contains at least one member of each group
-                group_members = [item for group in groups for item in group]
-                
-                if not set(node_species).issubset(group_members):
-                    continue
-
-                # node_label and continue to the next node label
-                node.name = f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
-                tree_labelled = True
-                label_applied = True
-                break
+            # Check if the duplcates are in the same clade
+            if duplicate_leaves != set(self._origin_tree.common_ancestor(duplicate_leaves).leaf_names()):
+                logging.warning(f"Non-sister duplicates found for species ({species}) in {self.tree_file}")
+                return False
         
-        if not label_applied:
-            print(f"Warning: node label {node_label} could not be applied to any node in the tree.")
+        return True
+    
+    def label (self, node_label_dict, analysis_label_dict, analysis_label_symbols = '{}'):
 
-    # Label the non-duplicate leaves with the corresponding label fr analysis_label_dictom
-    for leaf in yieldNonDuplicateLeaves(labelled_tree):
-        leaf_species = leaf.name.split('-')[0]
-        if leaf_species not in analysis_label_dict:
-            continue
-        mapped_node_label = analysis_label_dict[leaf_species]
-        leaf.name += f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
-        tree_labelled = True
-        label_applied = True
+        # Create a copy of the tree to label
+        labelled_tree = self._origin_tree.copy()
 
-    # Label the duplicate leaves with the corresponding label from analysis_label_dict
-    for species, duplicate_leaves in yieldDuplicateLeafNames(labelled_tree):
-        duplicate_node = labelled_tree.common_ancestor(duplicate_leaves)
-        mapped_node_label = analysis_label_dict[species]
-        duplicate_node.name = f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
-        tree_labelled = True
-        label_applied = True
+        # Create a flag to indicate whether the tree has been labelled
+        tree_labelled = False
 
-    if tree_labelled:
-        return labelled_tree
-    else:
-        return Tree()
+        for node_label, groups in node_label_dict.items():
+
+            if node_label not in analysis_label_dict:
+                logging.warning(f"Node label {node_label} not found among analysis. Skipping for {self.tree_file}")
+                continue
+
+            # Assign the corresponding label from analysis_label_dict to node_label
+            mapped_node_label = analysis_label_dict[node_label]
+
+            # Creatge a flag to indicate whether the current node label has been applied
+            label_applied = False
+            
+            for node in labelled_tree.traverse('postorder'):
+                if not node.is_leaf:
+                    node_species = [_lf.split('-')[0] for _lf in node.leaf_names()]
+
+                    # Check that each group in the label_dict is a subset of the node species
+                    if any(set(group).isdisjoint(node_species) for group in groups):
+                        continue
+
+                    # If we reach this point, it means that the node_species contains at least one member of each group
+                    group_members = [item for group in groups for item in group]
+                    
+                    if not set(node_species).issubset(group_members):
+                        continue
+
+                    # node_label and continue to the next node label
+                    node.name = f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
+                    tree_labelled = True
+                    label_applied = True
+                    break
+            
+            if not label_applied:
+                logging.warning(f"Node label {node_label} cannot be labelled. Skipping for {self.tree_file}.")
+
+        # Label the non-duplicate leaves with the corresponding label fr analysis_label_dictom
+        for leaf in self._yieldNonDuplicateLeaves(labelled_tree):
+            leaf_species = leaf.name.split('-')[0]
+            if leaf_species not in analysis_label_dict:
+                continue
+            mapped_node_label = analysis_label_dict[leaf_species]
+            leaf.name += f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
+            tree_labelled = True
+            label_applied = True
+
+        # Label the duplicate leaves with the corresponding label from analysis_label_dict
+        for species, duplicate_leaves in self._yieldDuplicateLeafNames(labelled_tree):
+            duplicate_node = labelled_tree.common_ancestor(duplicate_leaves)
+            mapped_node_label = analysis_label_dict[species]
+            duplicate_node.name = f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
+            tree_labelled = True
+            label_applied = True
+
+        if tree_labelled:
+            self._labelled_tree = labelled_tree
+        else:
+            self._labelled_tree = Tree()
+
+    def writeLabelledTree (self, output_dir, parser=1):
+
+        # Confirm that there is a labelled tree to write
+        if self._labelled_tree is not None:
+
+            # Create the output directory
+            os.makedirs(output_dir, exist_ok=True)
+
+            # Write the labelled tree to the output directory
+            self._labelled_tree.write(outfile = os.path.join(output_dir, self.tree_file), parser=parser)
+        else:
+            logging.error(f"No labelled tree to write for {self.tree_file}")
+
+    @staticmethod
+    def _returnDuplicateSpecies (tree):
+        species_list = [leaf.split('-')[0] for leaf in tree.leaf_names()]
+        dup_species = set([s for s in species_list if species_list.count(s) > 1])
+        return dup_species
+    
+    @staticmethod
+    def _yieldDuplicateLeafNames (tree):
+        for species in GeneTree._returnDuplicateSpecies(tree):
+            duplicate_leaves = set()
+            for leaf in tree.leaf_names():
+                if leaf.startswith(species + '-'):
+                    duplicate_leaves.add(leaf)
+            yield species, duplicate_leaves
+
+    @staticmethod
+    def _yieldNonDuplicateLeaves (tree):
+        # Assign the duplicate species
+        dup_species = GeneTree._returnDuplicateSpecies(tree)
+
+        # Iterate through the leaves of the tree
+        for leaf in tree:
+            species = leaf.name.split('-')[0]
+            if species not in dup_species:
+                yield leaf
 
 def confirmTree (tree):
    
@@ -193,6 +227,7 @@ def main ():
 
     # Read in the species tree
     species_tree = Tree(tree_args['species_tree'], parser=1)
+    print(dir(species_tree))
     logging.info(f"Species tree read from {tree_args['species_tree']}")
 
     # Create a dictionary mapping node labels to the corresponding groups of species
@@ -212,24 +247,20 @@ def main ():
             # Skip files that do not end with '.tre'
             if not gene_tree_file.endswith('.tre'):
                 continue
-
-            # Read in the gene tree
-            gene_tree = Tree(os.path.join(tree_args['gene_tree_dir'], gene_tree_file), parser=1)
-
+            
+            # Read in the gene tree using the GeneTree class
+            gene_tree = GeneTree(os.path.join(tree_args['gene_tree_dir'], gene_tree_file))
+            
             # Confirm that the gene tree is valid and can be labelled
-            if not confirmTree(gene_tree):
+            if not gene_tree.isValid():
                 logging.error(f"Tree '{gene_tree_file}' failed the confirmation check. Skipping this tree.")
                 continue
+            
+            # Label the gene tree using the node label dictionary and the analysis label dictionary
+            gene_tree.label(node_label_dict, analysis_label_dict)
 
-            # Label the gene tree
-            labelled_gene_tree = labelTreeNodes(gene_tree, node_label_dict, analysis_label_dict)
-
-            # Create the output directory for the labelled gene trees if it does not exist
-            output_dir = os.path.join(tree_args['output_dir'], analysis_name)
-            os.makedirs(output_dir, exist_ok=True)
-
-            # Write the labelled gene tree to the output directory
-            labelled_gene_tree.write(outfile=os.path.join(output_dir, gene_tree_file), parser=1)
+            # Write the labelled tree to the output directory
+            gene_tree.writeLabelledTree(os.path.join(tree_args['output_dir'], analysis_name))
 
             logging.info(f"Labelled tree for '{gene_tree_file}'")
 
