@@ -55,6 +55,8 @@ setup(
             "split-fasta = pipemake_utils.split_fasta:main",
             "models-ind = pipemake_utils.models_ind:main",
             "calc-pve = pipemake_utils.calc_pve:main",
+            "subset-fasta = pipemake_utils.subset_fasta:main",
+            "subset-fastas = pipemake_utils.subset_fastas:main",
         ],
     },
     python_requires=">=3.7",
