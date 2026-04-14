@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-latest"]
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v3
@@ -39,5 +39,14 @@ jobs:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
         run: |
           conda build .conda/pipemake_utils --output-folder build
+      - name: Build MacOS - External
+        if: matrix.os == 'macos-latest'
+        shell: powershell
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+        run: |
+          conda build .conda/pipemake_utils --output-folder build
+          anaconda -t "$env:ANACONDA_API_TOKEN" upload --user kocherlab build/osx-arm64/*.conda
+        
           anaconda -t "$ANACONDA_API_TOKEN" upload --user kocherlab build/linux-64/*.conda
         
