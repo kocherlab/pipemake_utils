@@ -1,0 +1,3 @@
+library(GENESPACE) 
+gpar <- init_genespace(wd = "wd", path2mcscanx = "/opt/conda/envs/genespace/bin")
+out <- run_genespace(gpar, overwrite = T)
