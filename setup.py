@@ -57,6 +57,7 @@ setup(
             "calc-pve = pipemake_utils.calc_pve:main",
             "subset-fasta = pipemake_utils.subset_fasta:main",
             "subset-fastas = pipemake_utils.subset_fastas:main",
+            "label-gene-tree = pipemake_utils.label_gene_tree:main",
         ],
     },
     python_requires=">=3.7",
