@@ -5,3 +5,5 @@ pandas
 numpy
 scipy
 pyyaml
+ete4
+PyQt6
