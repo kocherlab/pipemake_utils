@@ -1,13 +1,13 @@
 # Basic Information
 __name__ = "pipemake_utils"
-__version__ = "1.3.8"
+__version__ = "1.4.0"
 __summary__ = "Pipemake Utilities"
 __url__ = "https://github.com/kocherlab/pipemake_utils"
 __code__ = "https://github.com/kocherlab/pipemake_utils"
 __issue__ = "https://github.com/kocherlab/pipemake_utils/issues"
 __docs__ = ""
 __license__ = "MIT"
-__copyright__ = "2023"
+__copyright__ = "2026"
 
 # Author Information
 __authors__ = "Andrew Webb and Sarah Kocher"
