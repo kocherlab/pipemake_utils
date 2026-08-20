@@ -10,43 +10,47 @@ jobs:
     name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
     steps:
       - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: conda-incubator/setup-miniconda@v4
         with:
-          miniconda-version: "latest"
-          mamba-version: "*"
-          activate-environment: pipemake_utils
-          environment-file: .conda/environment_build.yml
-          python-version: 3.9
+          auto-activate: true
+          activate-environment: ""
           channels: conda-forge,bioconda,conda-forge/label/python_rc
-          channel-priority: true
+          
       - name: Build Windows - External
         if: matrix.os == 'windows-latest'
         shell: powershell
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
         run: |
+          conda install -y conda-build anaconda::anaconda-client
           conda build .conda/pipemake_utils --output-folder build
           anaconda -t "$env:ANACONDA_API_TOKEN" upload --user kocherlab build/win-64/*.conda
+
+      - name: Setup (${{ matrix.os }}) packages
+        shell: bash -el {0}
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        run: |
+          conda install -y conda-build anaconda::anaconda-client
+
       - name: Build Ubuntu - External
         if: matrix.os == 'ubuntu-latest'
-        shell: bash -l {0}
+        shell: bash -el {0}
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
         run: |
           conda build .conda/pipemake_utils --output-folder build
+          anaconda -t "$ANACONDA_API_TOKEN" upload --user kocherlab build/linux-64/*.conda
+
       - name: Build MacOS - External
         if: matrix.os == 'macos-latest'
-        shell: powershell
+        shell: bash -el {0}
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
         run: |
           conda build .conda/pipemake_utils --output-folder build
           anaconda -t "$env:ANACONDA_API_TOKEN" upload --user kocherlab build/osx-arm64/*.conda
-        
-          anaconda -t "$ANACONDA_API_TOKEN" upload --user kocherlab build/linux-64/*.conda
         
