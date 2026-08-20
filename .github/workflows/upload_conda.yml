@@ -52,5 +52,5 @@ jobs:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
         run: |
           conda build .conda/pipemake_utils --output-folder build
-          anaconda -t "$env:ANACONDA_API_TOKEN" upload --user kocherlab build/osx-arm64/*.conda
+          anaconda -t "$ANACONDA_API_TOKEN" upload --user kocherlab build/osx-arm64/*.conda
         
