@@ -69,7 +69,7 @@ class GeneTree:
                 
                 self._species_duplicates[species] = [gene_names, False]
 
-    def label (self, node_label_dict, analysis_label_dict, analysis_label_symbols = '{}'):
+    def label (self, node_label_dict, analysis_label_dict, label_descendants = False, analysis_label_symbols = '{}'):
 
         # Create a copy of the tree to label
         labelled_tree = self._origin_tree.copy()
@@ -133,7 +133,21 @@ class GeneTree:
                 node.name = f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
                 tree_labelled = True
                 label_applied = True
-                break
+
+                # If the--label-descendants option is not used, break the loop and continue to the next node label
+                if not label_descendants:
+                    break
+
+                # If the --label-descendants option is used, label all descendants of the current node with the same label
+                for child in node.descendants():
+                    if child.is_leaf:
+                        child.name += f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
+                    else:
+                        child.name = f"{analysis_label_symbols[0]}{mapped_node_label}{analysis_label_symbols[1]}"
+
+                # If the --label-descendants option is used, we can assign the labelled tree to self._labelled_tree and return early
+                self._labelled_tree = labelled_tree
+                return
             
             if not label_applied:
                 logging.warning(f"Node label {node_label} cannot be labelled. Skipping for {self.tree_file}.")
@@ -183,7 +197,7 @@ class GeneTree:
 
             # Determine the output filename based on the output naming style
             if output_naming_style == 'suffix':
-                output_filename_wo_ext = f"{os.path.splitext(self.tree_file)[0]}_{analysis_name}"
+                output_filename_wo_ext = f"{os.path.splitext(self.tree_file)[0]}.{analysis_name}"
             else:
                 output_filename_wo_ext = f"{os.path.splitext(self.tree_file)[0]}"
 
@@ -225,7 +239,35 @@ def createLabelDict (species_tree, species_label_symbols='[]'):
 
     return dict(sorted(label_dict.items(), key=lambda x: sum(len(sub) for sub in x[1])))
 
-def analysisLabelFile (label_filename):
+
+def analysisLabelStr (label_str, label_descendants=False):
+
+    logging.info(f"Processing analysis label string: {label_str}")
+
+    # Create a dictionary to hold the analysis labels
+    analysis_labels = defaultdict(lambda: defaultdict(str))
+
+    # Raise an error if the label string does not contain a ':' character
+    if ':' not in label_str:
+        raise IOError(f"Warning: Label string '{label_str}' does not contain a ':' character. Please check the format of the label string.")
+
+    # If the --label-descendants option is used, check that there is only one label per analysis
+    if label_descendants and len(label_str.split(';')) > 1:
+        raise ValueError(f"Error: --label-descendants option is only allowed with a single label per analysis. Please check the format of the label string for analysis '{label_str}'.")
+
+    # Process the analysis label data
+    for analysis_label_data in label_str.split(';'):
+        analysis_label, analysis_nodes_str = analysis_label_data.split(':')
+        for analysis_node in analysis_nodes_str.split(','):
+            analysis_labels[analysis_label.strip()][analysis_node.strip()] = analysis_label.strip()
+
+            logging.info(f"Mapping node '{analysis_node.strip()}' to label '{analysis_label.strip()}'")
+
+    logging.info(f"Analysis label dictionary created with {len(analysis_labels)} analyses.")
+
+    return analysis_labels
+
+def analysisLabelFile (label_filename, label_descendants=False):
 
     logging.info(f"Reading analysis label file from {label_filename}")
     
@@ -249,6 +291,10 @@ def analysisLabelFile (label_filename):
 
             logging.info(f"Processing analysis label: {analysis_name.strip()}")
 
+            # If the --label-descendants option is used, check that there is only one label per analysis
+            if label_descendants and len(analysis_data.split(';')) > 1:
+                raise ValueError(f"Error: --label-descendants option is only allowed with a single label per analysis. Please check the format of the label file for analysis '{analysis_name.strip()}'.")
+
             # Process the analysis label data
             for analysis_label_data in analysis_data.split(';'):
                 analysis_label, analysis_nodes_str = analysis_label_data.split(':')
@@ -264,7 +310,10 @@ def analysisLabelFile (label_filename):
 def treeParser ():
     tree_parser = argparse.ArgumentParser(description='Label gene trees based on a species tree and an analysis label file')
     tree_parser.add_argument('--species-tree', help = 'Newick string of the species tree with node labels', type=str, required = True, action = confirmFile())
-    tree_parser.add_argument('--analysis-label-file', help = 'String of the analysis label file in the format "ANALYSIS_LABEL:NODE1,NODE2;ANALYSIS_LABEL2:NODE3,NODE4"', type=str, required = True, action = confirmFile())
+    analysis_label_group = tree_parser.add_mutually_exclusive_group(required=True)
+    analysis_label_group.add_argument('--analysis-label-str', help = 'String of the analysis label in the format "ANALYSIS_LABEL:NODE1,NODE2"', type=str)
+    analysis_label_group.add_argument('--analysis-label-file', help = 'String of the analysis label file in the format "ANALYSIS_LABEL:NODE1,NODE2;ANALYSIS_LABEL2:NODE3,NODE4"', type=str, action = confirmFile())
+    tree_parser.add_argument('--label-descendants', help = 'Label all descendants of a labelled node with the same label. Only allowed with a single label per analysis.', action = 'store_true')
     tree_parser.add_argument('--gene-tree', help = 'File containing the gene tree to be labelled', type=str, required = True, action = confirmFile())
     tree_parser.add_argument('--output-dir', help = 'Output directory for the labelled gene trees', type=str, default = 'labelled_trees')
     tree_parser.add_argument('--output-naming-style', help = 'Analysis naming style for the output files: subdirectories (default) or suffix', type=str, choices = ['subdirectory', 'suffix'], default = 'subdirectory')
@@ -286,8 +335,15 @@ def main ():
     # Create a dictionary mapping node labels to the corresponding groups of species
     node_label_dict = createLabelDict(species_tree)
 
-    # Create the analysis label dictionary from the analysis label file
-    analysis_labels = analysisLabelFile(tree_args['analysis_label_file'])
+    if tree_args['analysis_label_str']:
+
+        analysis_labels = analysisLabelStr(tree_args['analysis_label_str'], tree_args['label_descendants'])
+  
+    elif tree_args['analysis_label_file']:
+
+        # Create the analysis label dictionary from the analysis label file
+        analysis_labels = analysisLabelFile(tree_args['analysis_label_file'], tree_args['label_descendants'])
+
     
     # Loop the analysis labels and label the gene trees for each analysis
     for analysis_name, analysis_label_dict in analysis_labels.items():
@@ -306,7 +362,7 @@ def main ():
             continue
         
         # Label the gene tree using the node label dictionary and the analysis label dictionary
-        gene_tree.label(node_label_dict, analysis_label_dict)
+        gene_tree.label(node_label_dict, analysis_label_dict, tree_args['label_descendants'])
 
         # Write the labelled tree to the output directory
         gene_tree.writeLabelledTree(tree_args['output_dir'], analysis_name, tree_args['output_naming_style'])
