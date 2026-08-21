@@ -45,6 +45,8 @@ requirements:
     - conda-forge::numpy >=2.1.3
     - conda-forge::scipy >=1.14.1
     - conda-forge::pyyaml >=6.0.2
+    - conda-forge::ete4 >=4.4.0
+    - conda-forge::pyqt6 >=6.11.0
 
 test:
   imports:
