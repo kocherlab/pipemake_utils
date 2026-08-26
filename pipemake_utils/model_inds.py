@@ -42,7 +42,7 @@ def main():
     map_args = argParser()
 
     # Start logger and log the arguments
-    startLogger(f"{map_args['out_prefix']}.ind.log")
+    startLogger()
     logArgDict(map_args)
 
     # Assign the model

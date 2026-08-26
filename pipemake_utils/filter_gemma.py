@@ -27,7 +27,7 @@ def main():
 	filter_args = argParser()
 
 	# Start logger and log the arguments
-	startLogger(f"{filter_args['out_filename']}.log")
+	startLogger()
 	logArgDict(filter_args)
 
 	# Open the GEMMA output as a dataframe

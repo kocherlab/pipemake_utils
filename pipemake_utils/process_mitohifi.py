@@ -156,7 +156,7 @@ def main():
     process_ncbi_args = processNCBIAnnotationsParser()
 
     # Start logger and log the arguments
-    startLogger(f"{process_ncbi_args['out_prefix']}.cvt.log")
+    startLogger()
     logArgDict(process_ncbi_args)
 
     processGFF(**process_ncbi_args)

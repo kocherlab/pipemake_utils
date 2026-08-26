@@ -25,7 +25,7 @@ def main ():
     split_args = splitArgs()
 
     # Start logger and log the arguments
-    startLogger(f"{split_args['output_dir']}.log")
+    startLogger()
     logArgDict(split_args)
 
     splitFasta(split_args['input_fasta'], split_args['output_dir'])

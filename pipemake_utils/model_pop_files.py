@@ -36,9 +36,7 @@ def main():
         os.makedirs(model_args["out_dir"])
 
     # Start logger and log the arguments
-    startLogger(
-        os.path.join(model_args["out_dir"], f"{model_args['model_name']}.pop.log")
-    )
+    startLogger()
     logArgDict(model_args)
 
     # Read the model file

@@ -149,7 +149,7 @@ def main():
     pca_args = argParser()
 
     # Start logger and log the arguments
-    startLogger(f"{pca_args['out_prefix']}.plot.log")
+    startLogger()
     logArgDict(pca_args)
 
     # Create the PCA object using the PLINK directory

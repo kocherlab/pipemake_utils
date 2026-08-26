@@ -30,7 +30,7 @@ def main ():
     chunk_args = chuckArgs()
 
     # Start logger and log the arguments
-    startLogger("chunk_fasta.log")
+    startLogger()
     logArgDict(chunk_args)
 
     chunkFasta(chunk_args['input_fasta'], chunk_args['output_fasta'], chunk_args['chunk_size'])

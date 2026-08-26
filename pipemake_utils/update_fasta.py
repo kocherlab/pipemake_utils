@@ -126,7 +126,7 @@ def main():
     process_ncbi_args = processNCBIAnnotationsParser()
 
     # Start logger and log the arguments
-    startLogger(f"{process_ncbi_args['out_filename']}.log")
+    startLogger()
     logArgDict(process_ncbi_args)
 
     # Generate the GFF dictionary with mRNA attributes

@@ -59,7 +59,7 @@ def main():
     seq_args = seqParser()
 
     # Start the logger
-    startLogger(f"{seq_args['output_prefix']}.log")
+    startLogger()
 
     # Log the arguments
     logArgDict(seq_args)

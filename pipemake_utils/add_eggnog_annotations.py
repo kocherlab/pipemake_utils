@@ -116,7 +116,7 @@ def main():
         raise ValueError("At least one file to be annotated must be provided")
 
     # Start logger and log the arguments
-    startLogger(f"{eggnog_args['output_prefix']}.log")
+    startLogger()
     logArgDict(eggnog_args)
 
     # Create a dictionary of the eggNOG output file

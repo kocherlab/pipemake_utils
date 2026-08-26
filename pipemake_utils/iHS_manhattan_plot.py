@@ -28,7 +28,7 @@ def main():
 	plot_args = argParser()
 
 	# Start logger and log the arguments
-	startLogger(f"{plot_args['out_prefix']}.plot.log")
+	startLogger()
 	logArgDict(plot_args)
 
 	# Read in the PBS data

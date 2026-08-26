@@ -36,7 +36,7 @@ def main():
 	normalize_args['out_filename'] = f"{normalize_args['out_prefix']}.{normalize_args['input_format']}"
 
 	# Start logger and log the arguments
-	startLogger(f"{normalize_args['out_prefix']}.normalize.log")
+	startLogger()
 	logArgDict(normalize_args)
 
 	# Assign the input file separator

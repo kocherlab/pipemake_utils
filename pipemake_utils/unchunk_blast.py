@@ -43,7 +43,7 @@ def main():
     args = unchunkArgs()
 
     # Start logger and log the arguments
-    startLogger("unchunked_blast.log")
+    startLogger()
     logArgDict(args)
 
     unchunkBlast(args["chunked_blast"], args["unchunked_blast"])
