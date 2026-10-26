@@ -101,6 +101,12 @@ def main():
     if map_args["binary"] and map_args["numeric"]:
         raise Exception("Cannot specify both binary and numeric")
 
+    # Check if the model has more phenotypes than supported by binary mapping
+    if len(model_name.ind_dict) > 2 and map_args["binary"]:
+        raise Exception(
+            f"Too many phenotypes for binary mapping: {len(model_name.ind_dict)}"
+        )
+
     # Check if the user specified neither binary with a limit greater than 2
     if not map_args["binary"] and map_args["phenotype_limit"] > 2:
         raise Exception(

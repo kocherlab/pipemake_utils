@@ -68,6 +68,11 @@ class PCA:
         self._eigenvectors_dataframe = eigenvectors_dataframe
         self._eigenvalues_dataframe = eigenvalues_dataframe
 
+        # Convert the eigenvalues to percent variance explained. The total is the
+        # sum of the eigenvalues provided, which may be fewer than all PCs
+        eigenvalues = eigenvalues_dataframe.loc["Eigenvalues"]
+        self._percent_variance = eigenvalues / eigenvalues.sum() * 100
+
         logging.info("Successfully created PCA object from PLINK directory")
 
     @classmethod
@@ -132,8 +137,8 @@ class PCA:
 
         # Update the axis and plot titles
         pca_plot.set(
-            xlabel=f"PC1 ({self._eigenvalues_dataframe.loc['Eigenvalues']['PC1']}%)",
-            ylabel=f"PC2 ({self._eigenvalues_dataframe.loc['Eigenvalues']['PC2']}%)",
+            xlabel=f"PC1 ({self._percent_variance['PC1']:.1f}%)",
+            ylabel=f"PC2 ({self._percent_variance['PC2']:.1f}%)",
             title=f"{model} PCA",
         )
 
