@@ -122,7 +122,7 @@ def addPrefixedIDParser():
     )
     parser.add_argument("--in-file", dest="in_filename", help="Input GFF3 or GTF (uncompressed)", type=str, required=True, action=confirmFile())
     parser.add_argument("--out-file", dest="out_filename", help="Output filename", type=str, required=True)
-    parser.add_argument("--format", dest="annotation_format", help="Input/output format", choices=["gff3", "gtf"], type=str, required=True)
+    parser.add_argument("--format", dest="annotation_format", help="Input/output format (gff and gff3 are treated the same)", choices=["gff", "gff3", "gtf"], type=str, required=True)
     parser.add_argument("--prefix", help="Prefix prepended to the current ID", type=str, required=True)
     parser.add_argument("--sep", help="Separator placed between the prefix and the ID", type=str, default="_")
     parser.add_argument("--attr-name", help="Name of the attribute to add", type=str, default="kocherlab_id")
