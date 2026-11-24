@@ -58,7 +58,9 @@ setup(
             "subset-fasta = pipemake_utils.subset_fasta:main",
             "subset-fastas = pipemake_utils.subset_fastas:main",
             "label-gene-tree = pipemake_utils.label_gene_tree:main",
-            "confirm-ids-fasta = pipemake_utils.confirm_IDs_fasta:main"
+            "confirm-ids-fasta = pipemake_utils.confirm_IDs_fasta:main",
+            "add-prefixed-id = pipemake_utils.add_prefixed_id:main",
+            "update-header = pipemake_utils.update_header:main"
         ],
     },
     python_requires=">=3.7",

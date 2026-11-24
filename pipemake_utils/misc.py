@@ -20,3 +20,6 @@ def confirmDir ():
             setattr(args, self.dest, value)
 
     return customAction
+
+GENE_TYPES = {"gene", "ncRNA_gene"}
+TRANSCRIPT_TYPES = {"mRNA", "lnc_RNA", "rRNA", "snRNA", "snoRNA", "scRNA", "transcript"}
